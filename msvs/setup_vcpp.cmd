@@ -1,3 +1,6 @@
+@echo off
+
+@set exit_code=0
 
 set VSCOMNTOOLS=%VS120COMNTOOLS%
 @if "%VSCOMNTOOLS%"=="" VSCOMNTOOLS=%VS110COMNTOOLS%
@@ -11,11 +14,14 @@ set VSDEVENV="%VSCOMNTOOLS%..\..\VC\vcvarsall.bat"
 
 :error_no_VS110COMNTOOLSDIR
 @echo ERROR: setup_vcpp cannot determine the location of the VS Common Tools folder.
+@set exit_code=1
 @goto end
 
 :error_no_vcvarsall
 @echo ERROR: Cannot find file %VSDEVENV%.
+@set exit_code=1
 @goto end
 
 :end
+exit /b %exit_code%
 
