@@ -1,0 +1,46 @@
+## Use the R_HOME indirection to support installations of multiple R version
+RCPP_PKG_LIBS = $(shell "${R_HOME}/bin${R_ARCH_BIN}/Rscript" -e "Rcpp:::LdFlags()")
+
+INSTDIR=../inst
+
+ARCH_NB=32
+ifeq "$(R_ARCH)" "/x64"
+ARCH_NB=64
+endif
+
+# The following line is set by the configure.win script
+# LIB_PATH_UNIX=@LIB_PATH_UNIX@
+LOCAL_LIBS_ARGS=@LOCAL_LIBS_ARGS@
+LOCAL_INCLUDES_ARGS=@LOCAL_INCLUDES_ARGS@
+
+PKG_CPPFLAGS = --std=c++0x -I$(INSTDIR)/include $(LOCAL_INCLUDES_ARGS) 
+
+ifeq "$(CXX)" "icpc"
+PKG_CPPFLAGS = -std=c++0x -I$(INSTDIR)/include $(LOCAL_INCLUDES_ARGS) 
+endif
+
+PKG_LIBS = $(RCPP_PKG_LIBS) -L$(INSTDIR)/libs$(R_ARCH) $(LOCAL_LIBS_ARGS) -lmylib
+
+SOURCES1=$(wildcard *.cpp rcppinterop/src/*.cpp)
+OBJECTS = $(SOURCES1:.cpp=.o)
+
+all:		printarch  $(SHLIB)
+
+clean:
+	${RM} $(OBJECTS) $(SHLIB)
+
+printarch:
+	-@echo "**Variable - information only for diagnosis purposes**"
+	-@echo R_ARCH=$(R_ARCH)
+	-@echo OBJECTS=$(OBJECTS)
+	-@echo SHLIB_EXT=$(SHLIB_EXT)
+	-@echo CC=$(CC)
+	-@echo CXX=$(CXX)
+	-@echo PKG_CPPFLAGS=$(PKG_CPPFLAGS)
+	-@echo PKG_LIBS=$(PKG_LIBS)
+	-@echo **END Variable**
+
+
+
+
+

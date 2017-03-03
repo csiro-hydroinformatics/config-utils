@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <!--To limit the downstream risk of annoying or obscure issues with spaces in the path names
+    you should use the old DOS 8.3 folder names; you can get it using:
+    dir /X "C:\Program Files\R"
+    one wants to end up with a RInstallPath similar to C:/PROGRA~1/R/R-33~1.1/ to put here-->
+    <RInstallPath>C:/PROGRA~1/R/R-33~1.1/</RInstallPath>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup />
+  <ItemGroup>
+    <BuildMacro Include="RInstallPath">
+      <Value>$(RInstallPath)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

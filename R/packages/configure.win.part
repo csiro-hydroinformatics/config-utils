@@ -1,0 +1,103 @@
+
+# This portion of shell script is for inclusion in the configure.win files 
+# of the R package building process.
+# C:\src\github_jm\config-utils\R\packages
+
+# COMPILE_WITH_VCPP
+# get_msbuildpath=c:/path/to/config-utils/msvs/get_msbuildpath.cmd 
+
+
+SRC_DIR=./src
+if [ ! -e ${SRC_DIR} ] 
+then
+	echo "error: no suitable package src dir found - last tried ${SRC_DIR}"
+	CURDIR=`pwd`
+	echo "Current directory (pwd) is $CURDIR"	       
+	exit 1
+fi
+
+MAKEVARS_FILE=$SRC_DIR/Makevars.win
+MAKEVARS_INFILE=$MAKEVARS_FILE.in
+
+MAKEFILE_FILE=$SRC_DIR/Makefile.win
+MAKEFILE_INFILE=$MAKEFILE_FILE.in
+
+str_split() {
+	RESULT=`echo $1 | sed -e 's/;/ /g'`
+}
+
+LIB_PATH_UNIX=`cmd /c .\\\\src\\\\get_libpath.cmd`
+INCL_PATH_UNIX=`cmd /c .\\\\src\\\\get_includepath.cmd`
+
+if [ "$LIB_PATH_UNIX" = "" ]
+then
+	echo "ERROR: variable LIBRARY_PATH not found"
+	exit 1
+else
+	echo "LIB_PATH_UNIX=$LIB_PATH_UNIX"
+fi
+
+str_split $LIB_PATH_UNIX 
+paths=$RESULT
+
+arch_paths=
+for p in $paths ; do \
+     arch_paths="$arch_paths -L$p/\$(ARCH_NB)" ; \
+done
+
+subst_1="s|@LOCAL_LIBS_ARGS@|$arch_paths|g"
+
+str_split $INCL_PATH_UNIX 
+paths=$RESULT
+arch_paths=
+for p in $paths ; do \
+     arch_paths="$arch_paths -I$p" ; \
+done
+subst_2="s|@LOCAL_INCLUDES_ARGS@|$arch_paths|g"
+
+
+if [ "$COMPILE_WITH_VCPP" = "" ]
+then
+	sed -e "$subst_1" -e "$subst_2" $MAKEVARS_INFILE > $MAKEVARS_FILE
+	echo "Created $MAKEVARS_FILE"
+else
+	echo "variable COMPILE_WITH_VCPP found not empty - using Microsoft toolchain for compilation"
+	## Detect if a sufficient toolchain is present to compile with visual studio
+	if [ ! -e ${get_msbuildpath} ] 
+	then
+		echo "error: no msbuild.exe detection facility found: tried 'get_msbuildpath=${get_msbuildpath}'"
+		CURDIR=`pwd`
+		echo "Current directory (pwd) is $CURDIR"	       
+		exit 1
+	fi
+
+	VS_COMNTOOLS=${VS120COMNTOOLS}
+	# echo "$VS_COMNTOOLS"
+	if [ "$VS_COMNTOOLS" = "" ]
+	then
+		VS_COMNTOOLS=${VS110COMNTOOLS}
+	fi
+
+	if [ "$VS_COMNTOOLS" = "" ]
+	then
+		echo "No VS120COMNTOOLS or VS110COMNTOOLS environment variable found"
+		exit 1
+	fi
+
+	## Find the location of the MSBuild.exe executable. Typically:
+	# C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe or
+	# C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
+	GET_MSBUILD_CMD=`echo ${get_msbuildpath} | sed -e 's/\//\\\\/g'`
+	# Do note that this one returns a slashified path already. See get_msbuildpath
+	MSBUILD_EXE_SLASH=`cmd /c "$GET_MSBUILD_CMD"`
+	if [ ! -e $MSBUILD_EXE_SLASH ]
+	then
+		echo "error: Msbuild.exe not found at required location ${MSBUILD_TOOLS_PATH}"
+		exit 1
+	else
+		subst="s|@MSBUILD_EXE_PATH@|$MSBUILD_EXE_SLASH|g"
+		# echo $subst
+		sed -e "$subst" $MAKEFILE_INFILE > $MAKEFILE_FILE
+		echo "Created $MAKEFILE_FILE"
+	fi # end check on "${MSBUILD_EXE}"
+fi # end if [ "$COMPILE_WITH_VCPP" = "" ]
