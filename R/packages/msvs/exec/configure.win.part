@@ -11,10 +11,12 @@ then
 fi
 
 MAKEVARS_FILE=$SRC_DIR/Makevars.win
-MAKEVARS_INFILE=$MAKEVARS_FILE.in
+# MAKEVARS_INFILE=$MAKEVARS_FILE.in
+MAKEVARS_INFILE=`${RSCRIPT} -e "msvs:::get_makevars_win_template()"`
 
 MAKEFILE_FILE=$SRC_DIR/Makefile.win
-MAKEFILE_INFILE=$MAKEFILE_FILE.in
+# MAKEFILE_INFILE=$MAKEFILE_FILE.in
+MAKEFILE_INFILE=`${RSCRIPT} -e "msvs:::get_makefile_win_template()"`
 
 str_split() {
 	RESULT=`echo $1 | sed -e 's/;/ /g'`
@@ -44,8 +46,10 @@ for p in $paths ; do \
      arch_paths="$arch_paths -L$p/\$(ARCH_NB)" ; \
 done
 
+local_libs_args="$arch_paths"
 subst_1="s|@LOCAL_LIBS_ARGS@|$arch_paths|g"
 
+arch_paths=
 if [ "$INCL_PATH_UNIX" = "" ]
 then
 	arch_paths=
@@ -58,6 +62,7 @@ else
 		arch_paths="$arch_paths -I$p" ; \
 	done
 fi
+local_include_args="$arch_paths"
 subst_2="s|@LOCAL_INCLUDES_ARGS@|$arch_paths|g"
 
 
@@ -70,7 +75,12 @@ then  # we will rely on Makevars and RTools' GCC
 		echo "Current directory (pwd) is $CURDIR"	       
 		exit 1
 	fi
-	sed -e "$subst_1" -e "$subst_2" $MAKEVARS_INFILE > $MAKEVARS_FILE
+	# sed -e "$subst_1" -e "$subst_2" $MAKEVARS_INFILE > $MAKEVARS_FILE
+
+	`${RSCRIPT} -e "msvs:::create_makevars_from_template(template='$MAKEVARS_INFILE',out_file='$MAKEVARS_FILE', local_libs_args='${local_libs_args}',local_include_args='${local_include_args}')"`
+
+
+
 	echo "INFO: Created $MAKEVARS_FILE"
 else
 	## Detect if a sufficient toolchain is present to compile with visual studio
@@ -97,9 +107,10 @@ else
 		echo "ERROR: Msbuild.exe not found at required location ${MSBUILD_EXE_SLASH}"
 		exit 1
 	else
-		subst="s|@MSBUILD_EXE_PATH@|$MSBUILD_EXE_SLASH|g"
-		# echo $subst
-		sed -e "$subst" $MAKEFILE_INFILE > $MAKEFILE_FILE
+		# subst="s|@MSBUILD_EXE_PATH@|$MSBUILD_EXE_SLASH|g"
+		# # echo $subst
+		# sed -e "$subst" $MAKEFILE_INFILE > $MAKEFILE_FILE
+		`${RSCRIPT} -e "msvs:::create_makefile_from_template(template='$MAKEFILE_INFILE',out_file='$MAKEFILE_FILE', solution_filename='$solution_filename', from_dll_filenoext='$from_dll_filenoext', to_dll_filenoext='$to_dll_filenoext', msbuild_exe_path='$MSBUILD_EXE_SLASH')"`
 		echo "INFO: Created $MAKEFILE_FILE"
 	fi # end check on "${MSBUILD_EXE}"
 fi # end if [ "$COMPILE_WITH_VCPP" = "" ]

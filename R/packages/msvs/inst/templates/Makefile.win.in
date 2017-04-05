@@ -1,0 +1,73 @@
+## Use the R_HOME indirection to support installations of multiple R version
+
+# defaults the build configurations to the 'release' ones (i.e. no debug symbols)
+BuildConfiguration ?= Release
+MODE ?= Build
+MSB_OPTIONS_CONSOLELOGGER ?= /consoleloggerparameters:ErrorsOnly 
+## /consoleloggerparameters:ErrorsOnly;WarningsOnly;Verbosity=minimal
+
+# SLN=mylib_r.sln
+SLN=@SOLUTION_FILE_NAME@
+# MYLIB_MS=mylib_r
+MYLIB_MS=@BUILD_OUTPUT_FILENAME_NOEXT@
+# MYLIB_FN=mylib
+MYLIB_FN=@TARGET_OUTPUT_FILENAME_NOEXT@
+# The following line is set by the configure.win script
+MSB=@MSBUILD_EXE_PATH@
+
+INSTDIR= ../inst
+
+# This can be helpful to diagnose the msbuild procedure
+# DEBUG_BUILD_CMD=/v:diag
+DEBUG_BUILD_CMD ?= 
+
+ARCH_NB=32
+ifeq "$(R_ARCH)" "/x64"
+ARCH_NB=64
+endif
+
+MSB_OPTIONS_EXTRA=$(DEBUG_BUILD_CMD) $(MSB_OPTIONS_CONSOLELOGGER)
+ifneq "$(VS120COMNTOOLS)" ""
+# work around issue with VS2013, see https://rclr.codeplex.com/workitem/9
+MSB_OPTIONS_EXTRA=$(DEBUG_BUILD_CMD) /p:VisualStudioVersion=12.0 $(MSB_OPTIONS_CONSOLELOGGER)
+endif
+
+MYLIB_SOURCES=$(wildcard *.cpp)
+
+# ROBOCP_CMD=cmd /c win_cp.cmd
+ROBOCP_CMD=@ROBOCP_CMD@
+
+all: instdir myliblinking 
+# all: diagnose instdir myliblinking 
+
+mylibcompilation: $(MYLIB_SOURCES)
+	@for tgt_platform in x64 Win32; do \
+		$(MSB) $(SLN) /t:$(MODE) /p:Configuration=$(BuildConfiguration) /p:Platform="$$tgt_platform" $(MSB_OPTIONS_EXTRA); \
+	done; 
+
+instdir:
+	@for r_architecture in x64 i386; do \
+		rm -rf $(INSTDIR)/libs/$$r_architecture ; \
+		mkdir -p $(INSTDIR) 2>/dev/null ; \
+		mkdir -p $(INSTDIR)/libs/$$r_architecture 2>/dev/null ; \
+	done;
+
+myliblinking: mylibcompilation 
+	r_architecture=x64;\
+	MYLIB_BINDIR=./x64/$(BuildConfiguration);\
+	bin_dir=$$MYLIB_BINDIR; \
+	MYLIB_BINS="$(MYLIB_MS).dll $(MYLIB_MS).exp $(MYLIB_MS).lib $(MYLIB_MS).pdb" ; \
+	$(ROBOCP_CMD) $$bin_dir $(INSTDIR)/libs/$$r_architecture/ $$MYLIB_BINS;
+	r_architecture=i386;\
+	MYLIB_BINDIR=./$(BuildConfiguration);\
+	bin_dir=$$MYLIB_BINDIR; \
+	MYLIB_BINS="$(MYLIB_MS).dll $(MYLIB_MS).exp $(MYLIB_MS).lib $(MYLIB_MS).pdb" ; \
+	$(ROBOCP_CMD) $$bin_dir $(INSTDIR)/libs/$$r_architecture/ $$MYLIB_BINS;
+
+clean: 
+	$(MSB) $(SLN) /t:Clean
+
+distclean: clean
+	-rm -rf $(INSTDIR)
+
+.PHONY: all
