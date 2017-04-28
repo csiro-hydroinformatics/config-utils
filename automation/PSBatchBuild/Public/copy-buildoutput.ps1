@@ -31,6 +31,10 @@ function Copy-BuildOutput {
         [string]$FnNoExt = "my_lib_name"
     )
 
+    # if($Verbose) {
+    #     echo ('Copying Output' + $FromDir + "/" + $FnNoExt + " to " + $ToDir)
+    # }
+
     #$FromDir=$BuildOutputDir
     cp -Path ($FromDir + "/" + $FnNoExt + ".dll") -Destination $ToDir
     cp -Path ($FromDir + "/" + $FnNoExt + ".lib") -Destination $ToDir

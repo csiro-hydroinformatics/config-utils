@@ -31,7 +31,7 @@ function Copy-HeaderFiles {
     )
     foreach ($hd in $HeaderDirectories.values) 
     {
-        cp -Path $hd -Destination $ToDir -Recurse
+        cp -Path $hd -Destination $ToDir -Recurse -Force 
     }
 }
 
