@@ -55,6 +55,13 @@ function Build-Solutions {
         foreach ($BuildPlatform in $BuildPlatforms)
         {
             # have yet to find how to pass consoleloggerparameters:ErrorsOnly
+            # public string Parameters { get; set; }
+            # Member of Microsoft.Build.Logging.ConsoleLogger
+            # Summary:
+            # A semi-colon delimited list of "key[=value]" parameter pairs.
+
+            # but using the following still outputs warnings to the console -DefaultLoggerParameters 'consoleloggerparameters=ErrorsOnly'
+
             $buildResults = Invoke-MSBuild -Project $solution -Target $BuildMode -Verbosity Quiet -DefaultLogger Host -Property @{Configuration=$BuildConfiguration;Platform=$BuildPlatform} -ToolsVersion $ToolsVersion
             if ($buildResults.OverallResult -ne $success) {break iterSln} 
         }
