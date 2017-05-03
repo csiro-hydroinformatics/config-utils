@@ -41,6 +41,9 @@ fi
 str_split $LIB_PATH_UNIX 
 paths=$RESULT
 
+##########################
+# e.g.
+# -Lc:/localdev/lib/64 -Lc:/local/lib/64 
 arch_paths=
 for p in $paths ; do \
      arch_paths="$arch_paths -L$p/\$(ARCH_NB)" ; \
@@ -49,22 +52,26 @@ done
 local_libs_args="$arch_paths"
 subst_1="s|@LOCAL_LIBS_ARGS@|$arch_paths|g"
 
-arch_paths=
+##########################
+# e.g.
+# -Ic:/local/include
+include_paths=
 if [ "$INCL_PATH_UNIX" = "" ]
 then
-	arch_paths=
+	include_paths=
 else
 	echo "Found INCL_PATH_UNIX=$INCL_PATH_UNIX"
 	str_split $INCL_PATH_UNIX 
 	paths=$RESULT
-	arch_paths=
+	include_paths=
 	for p in $paths ; do \
-		arch_paths="$arch_paths -I$p" ; \
+		include_paths="$include_paths -I$p" ; \
 	done
 fi
-local_include_args="$arch_paths"
-subst_2="s|@LOCAL_INCLUDES_ARGS@|$arch_paths|g"
+local_include_args="$include_paths"
+subst_2="s|@LOCAL_INCLUDES_ARGS@|$include_paths|g"
 
+##########################
 
 if [ "$COMPILE_WITH_VCPP" = "" ]
 then  # we will rely on Makevars and RTools' GCC
@@ -75,9 +82,23 @@ then  # we will rely on Makevars and RTools' GCC
 		echo "Current directory (pwd) is $CURDIR"	       
 		exit 1
 	fi
-	# sed -e "$subst_1" -e "$subst_2" $MAKEVARS_INFILE > $MAKEVARS_FILE
 
-	`${RSCRIPT} -e "msvs:::create_makevars_from_template(template='$MAKEVARS_INFILE',out_file='$MAKEVARS_FILE', local_libs_args='${local_libs_args}',local_include_args='${local_include_args}')"`
+	##########################
+	# e.g.
+	# -lboostsomething -ldatatypes -lkernel
+	dependency_lib_names_args=
+	if [ "$dependency_lib_names" = "" ]
+	then
+		echo "INFO: dependency_lib_names is empty or not set"
+		dependency_lib_names_args=
+	else
+		echo "Found dependency_lib_names='$dependency_lib_names'"
+		for p in $dependency_lib_names ; do \
+			dependency_lib_names_args="$dependency_lib_names_args -l$p" ; \
+		done
+	fi
+
+	`${RSCRIPT} -e "msvs:::create_makevars_from_template(template='$MAKEVARS_INFILE',out_file='$MAKEVARS_FILE', local_libs_args='${local_libs_args}',local_include_args='${local_include_args}', dependency_lib_names_args='${dependency_lib_names_args}')"`
 
 
 

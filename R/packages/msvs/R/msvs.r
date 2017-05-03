@@ -124,14 +124,16 @@ create_makefile_from_template <- function(template,out_file, solution_filename, 
 }
 
 #' @export
-create_makevars_from_template <- function(template,out_file, local_libs_args,local_include_args) {
+create_makevars_from_template <- function(template,out_file, local_libs_args,local_include_args, dependency_lib_names_args) {
     if(!file.exists(template)) {stop(paste0('Template file does not exist: ', template))}
     # LOCAL_LIBS_ARGS=@LOCAL_LIBS_ARGS@
     # LOCAL_INCLUDES_ARGS=@LOCAL_INCLUDES_ARGS@
-    replacements <- list(local_libs_args,local_include_args)
+    # LIB_NAMES_ARGS=@LIB_NAMES_ARGS@
+    replacements <- list(local_libs_args, local_include_args, dependency_lib_names_args)
     names(replacements) <- c(
         '@LOCAL_LIBS_ARGS@', 
-        '@LOCAL_INCLUDES_ARGS@')
+        '@LOCAL_INCLUDES_ARGS@',
+        '@LIB_NAMES_ARGS@')
     create_file_from_template(template,out_file, replacements) 
 }
 
@@ -203,3 +205,51 @@ custom_install_shlib <- function(files, srclibname='swift_r', shlib_ext, r_arch,
     }
   }
 }
+
+#' @export
+prepend_library_path <- function(path='c:\\localdev\\libs') {
+	libp <- Sys.getenv('LIBRARY_PATH')
+	Sys.setenv(LIBRARY_PATH=paste(path,libp,sep=';'))
+}
+
+#' @export
+prepend_rlibpath <- function(path='c:/RLibDev') {
+	.libPaths(c(path, .libPaths()))
+}
+
+#' @export
+pop_rlibpath <- function() {
+	.libPaths( .libPaths()[-1] )
+}
+
+#' @export
+sample_dev_paths<- function() {
+	# <RcppPkgPath>C:/RLibDev/Rcpp</RcppPkgPath>
+	GitHubJm <- 'C:/src/github_jm'
+	CsiroSrcPath <- 'C:/src/csiro/stash/per202'
+	return(c(
+	file.path(CsiroSrcPath,'datatypes/Solutions'),
+    file.path(GitHubJm, 'jsoncpp/solution'),
+    file.path(GitHubJm, 'yaml-cpp/vsproj')
+	))
+}
+
+#' @export
+build_vcpp_output_path <- function(path, build_configuration='Debug', arch='x64') {
+	p <- file.path(path, arch, build_configuration)
+	if(!dir.exists(p)) warning(paste('Directory not found: ', p))
+	return(normalizePath(p))
+}
+
+#' @export
+prepend_env_path <- function(build_configuration='Debug', arch='x64', paths=sample_dev_paths()) {
+	libp <- Sys.getenv('PATH')
+	for (p in paths)
+	{
+		p <- build_vcpp_output_path(p, build_configuration, arch)
+		libp <- paste(p, libp, sep=';')
+	}
+	Sys.setenv(PATH=libp)
+
+}
+

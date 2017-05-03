@@ -8,10 +8,11 @@ ifeq "$(R_ARCH)" "/x64"
 ARCH_NB=64
 endif
 
-# The following line is set by the configure.win script
+# The following few lines are set by the configure.win script
 # LIB_PATH_UNIX=@LIB_PATH_UNIX@
 LOCAL_LIBS_ARGS=@LOCAL_LIBS_ARGS@
 LOCAL_INCLUDES_ARGS=@LOCAL_INCLUDES_ARGS@
+LIB_NAMES_ARGS=@LIB_NAMES_ARGS@
 
 PKG_CPPFLAGS = --std=c++0x -I$(INSTDIR)/include $(LOCAL_INCLUDES_ARGS) 
 
@@ -19,9 +20,9 @@ ifeq "$(CXX)" "icpc"
 PKG_CPPFLAGS = -std=c++0x -I$(INSTDIR)/include $(LOCAL_INCLUDES_ARGS) 
 endif
 
-PKG_LIBS = $(RCPP_PKG_LIBS) -L$(INSTDIR)/libs$(R_ARCH) $(LOCAL_LIBS_ARGS) -lmylib
+PKG_LIBS = $(RCPP_PKG_LIBS) -L$(INSTDIR)/libs$(R_ARCH) $(LOCAL_LIBS_ARGS) $(LIB_NAMES_ARGS)
 
-SOURCES1=$(wildcard *.cpp rcppinterop/src/*.cpp)
+SOURCES1=$(wildcard *.cpp)
 OBJECTS = $(SOURCES1:.cpp=.o)
 
 all:		printarch  $(SHLIB)
