@@ -123,15 +123,17 @@ else
 	# C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe or
 	# C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
 	MSBUILD_EXE_SLASH=`${RSCRIPT} -e "msvs:::get_msbuild_exe_path()"`
-	if [ ! -e $MSBUILD_EXE_SLASH ]
+	if [ ! "$MSBUILD_EXE_SLASH" = "MSBuild.exe" ]
 	then
-		echo "ERROR: Msbuild.exe not found at required location ${MSBUILD_EXE_SLASH}"
-		exit 1
-	else
-		# subst="s|@MSBUILD_EXE_PATH@|$MSBUILD_EXE_SLASH|g"
-		# # echo $subst
-		# sed -e "$subst" $MAKEFILE_INFILE > $MAKEFILE_FILE
-		`${RSCRIPT} -e "msvs:::create_makefile_from_template(template='$MAKEFILE_INFILE',out_file='$MAKEFILE_FILE', solution_filename='$solution_filename', from_dll_filenoext='$from_dll_filenoext', to_dll_filenoext='$to_dll_filenoext', msbuild_exe_path='$MSBUILD_EXE_SLASH')"`
-		echo "INFO: Created $MAKEFILE_FILE"
+		if [ ! -e $MSBUILD_EXE_SLASH ]
+		then
+			echo "ERROR: MSBuild.exe not found at required location ${MSBUILD_EXE_SLASH}"
+			exit 1
+		fi # end check on "${MSBUILD_EXE}"
 	fi # end check on "${MSBUILD_EXE}"
+	# subst="s|@MSBUILD_EXE_PATH@|$MSBUILD_EXE_SLASH|g"
+	# # echo $subst
+	# sed -e "$subst" $MAKEFILE_INFILE > $MAKEFILE_FILE
+	`${RSCRIPT} -e "msvs:::create_makefile_from_template(template='$MAKEFILE_INFILE',out_file='$MAKEFILE_FILE', solution_filename='$solution_filename', from_dll_filenoext='$from_dll_filenoext', to_dll_filenoext='$to_dll_filenoext', msbuild_exe_path='$MSBUILD_EXE_SLASH')"`
+	echo "INFO: Created $MAKEFILE_FILE"
 fi # end if [ "$COMPILE_WITH_VCPP" = "" ]

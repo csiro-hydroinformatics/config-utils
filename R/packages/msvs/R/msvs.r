@@ -74,7 +74,10 @@ get_msbuild_exe_path <- function(dirsep='/', do_cat=TRUE) {
     x <- file.path(msvs:::get_location(), 'exec', 'get_msbuildpath.cmd')
     if(!file.exists(x)) {stop('script to find msbuild was not found')}
     msbuild_exe <- system(x, intern=TRUE)
-    if(!file.exists(msbuild_exe)) {stop(paste0('File does not exist: ', msbuild_exe))}
+    if(stringr::str_to_lower(msbuild_exe) != 'msbuild.exe') # if equal, was found in the path. OK...
+    {
+        if(!file.exists(msbuild_exe)) {stop(paste0('File does not exist: ', msbuild_exe))}
+    }
     do_cat_if(msbuild_exe, do_cat=do_cat)
 }
 
@@ -226,7 +229,7 @@ pop_rlibpath <- function() {
 sample_dev_paths<- function() {
 	# <RcppPkgPath>C:/RLibDev/Rcpp</RcppPkgPath>
 	GitHubJm <- 'C:/src/github_jm'
-	CsiroSrcPath <- 'C:/src/csiro/stash/per202'
+	CsiroSrcPath <- 'C:/src/csiro/stash'
 	return(c(
 	file.path(CsiroSrcPath,'datatypes/Solutions'),
     file.path(GitHubJm, 'jsoncpp/solution'),
