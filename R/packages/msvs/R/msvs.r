@@ -127,16 +127,24 @@ create_makefile_from_template <- function(template,out_file, solution_filename, 
 }
 
 #' @export
-create_makevars_from_template <- function(template,out_file, local_libs_args,local_include_args, dependency_lib_names_args) {
+create_makevars_from_template <- function(template,out_file, local_libs_args,local_include_args, dependency_lib_names_args,additional_pkg_cppflags, additional_pkg_libsflags) {
     if(!file.exists(template)) {stop(paste0('Template file does not exist: ', template))}
     # LOCAL_LIBS_ARGS=@LOCAL_LIBS_ARGS@
     # LOCAL_INCLUDES_ARGS=@LOCAL_INCLUDES_ARGS@
     # LIB_NAMES_ARGS=@LIB_NAMES_ARGS@
-    replacements <- list(local_libs_args, local_include_args, dependency_lib_names_args)
+    replacements <- list(
+        local_libs_args, 
+        local_include_args, 
+        dependency_lib_names_args,
+        additional_pkg_cppflags,
+        additional_pkg_libsflags)
     names(replacements) <- c(
         '@LOCAL_LIBS_ARGS@', 
         '@LOCAL_INCLUDES_ARGS@',
-        '@LIB_NAMES_ARGS@')
+        '@LIB_NAMES_ARGS@',
+        '@ADDITIONAL_PKG_CPPFLAGS@',
+        '@ADDITIONAL_PKG_LIBS_FLAGS@'
+        )
     create_file_from_template(template,out_file, replacements) 
 }
 
