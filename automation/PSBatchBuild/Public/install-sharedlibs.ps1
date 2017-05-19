@@ -43,12 +43,13 @@ function Install-SharedLibs
         [Hashtable]$Solutions = @{},
         [string]$BuildConfiguration = 'Release',
         [string[]]$BuildPlatforms = @(),
+        [Hashtable]$ArchTable = @{x64 = '64';Win32 = '32'},
         [string]$BuildMode = 'Build',
         [string[]]$LibNames = @(),
         [string]$LibDir = ".",
         [string]$ToolsVersion = "14.0"
     )
     Build-Solutions -Solutions $Solutions -BuildConfiguration $BuildConfiguration -BuildPlatforms $BuildPlatforms -BuildMode $BuildMode -ToolsVersion $ToolsVersion
-    Build-Library  -Solutions $Solutions -BuildConfiguration $BuildConfiguration -BuildPlatforms $BuildPlatforms -LibNames $LibNames -LibDir $LibDir
+    Build-Library  -Solutions $Solutions -BuildConfiguration $BuildConfiguration -BuildPlatforms $BuildPlatforms -LibNames $LibNames -LibDir $LibDir -ArchTable $ArchTable
 }
 

@@ -43,11 +43,12 @@ function Install-SharedLibsMultiCfg
         [string[]]$BuildPlatforms = @(),
         [string]$BuildMode = 'Build',
         [string[]]$LibNames = @(),
+        [Hashtable]$ArchTable = @{x64 = '64';Win32 = '32'},
         [string]$ToolsVersion = "14.0"
     )
     foreach ($cfg in $LibsDirs.keys)
     {
         # echo ("Install-SharedLibsMultiCfg cfg="+$cfg)
-        Install-SharedLibs -Solutions $Solutions -BuildConfiguration $cfg -BuildPlatforms $BuildPlatforms -BuildMode $BuildMode -ToolsVersion $ToolsVersion -LibNames $LibNames -LibDir $LibsDirs[$cfg]
+        Install-SharedLibs -Solutions $Solutions -BuildConfiguration $cfg -BuildPlatforms $BuildPlatforms -BuildMode $BuildMode -ToolsVersion $ToolsVersion -LibNames $LibNames -LibDir $LibsDirs[$cfg]  -ArchTable $ArchTable
     }
 }

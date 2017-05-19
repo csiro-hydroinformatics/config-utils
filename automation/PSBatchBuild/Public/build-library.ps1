@@ -35,6 +35,7 @@ function Build-Library {
         [string]$BuildConfiguration = 'Release',
         [Hashtable]$Solutions = @{},
         [string[]]$BuildPlatforms = @(),
+        [Hashtable]$ArchTable = @{x64 = '64';Win32 = '32'},
         [string[]]$LibNames = @(),
         [string]$LibDir = "."
     )
@@ -42,7 +43,7 @@ function Build-Library {
     :iterSln foreach ($libname in $LibNames)
     {
         if(!$Solutions.Contains($libname)) {
-            echo ('Solution for libname not found: ' + $libname)
+            Write-Output ('Solution for libname not found: ' + $libname)
             break iterSln
         } 
         $solution=$Solutions[$libname]
