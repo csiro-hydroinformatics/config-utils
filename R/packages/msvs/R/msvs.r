@@ -1,46 +1,50 @@
 # library(roxygen2)
 # roxygenise('C:/src/github_jm/config-utils/R/packages/msvs')
 
+
+
+#' Gets the location on disk of this package
+#' 
+#' Gets the location on disk of this package. Usage is to locate a root directory for other specialized functions in this package. 
+#' 
 #' @export
 get_location <- function() {
     find.package('msvs')
 }
 
-apply_dirsep <- function(x, dirsep='/') {
-    # We use string replacement to allow for multipls backslashes that is required in 
-    # character replacement in Makefile template files
-    # return (normalizePath( x, winslash=dirsep, mustWork=FALSE))
-    # x <- "c:/src/csiro\\blah\\blah"
-    x <- stringr::str_replace_all(x, '/', dirsep)
-    x <- stringr::str_replace_all(x, '\\\\', dirsep)
-    return(x)
-}
-
-get_path_from_env <- function(envvarname, dirsep='/', do_cat=TRUE) {
-# LIB_PATH_UNIX=`cmd /c .\\\\src\\\\get_libpath.cmd`
-    env <- Sys.getenv(envvarname)
-    if (env == '') {stop(paste0('environment variable not found: ', envvarname))}
-    x <- apply_dirsep( env, dirsep )
-    do_cat_if(x, do_cat=do_cat)
-}
-
-do_cat_if <- function(x, do_cat=TRUE) {
-    if(do_cat) {cat(x)}
-    else { return(x) }
-}
-
+#' Gets the content of the LIBRARY_PATH environment variable
+#' 
+#' Gets the content of the LIBRARY_PATH environment variable
+#' 
+#' @param dirsep directory separator to expect/use for the retrieved value
+#' @param do_cat use the `cat` function to output to stdout rather than return the character vector
+#' @return a character vector if do_cat=FALSE, nothing otherwise (default) 
 #' @export
 get_library_path <- function(dirsep='/', do_cat=TRUE) {
 # LIB_PATH_UNIX=`cmd /c .\\\\src\\\\get_libpath.cmd`
     return(get_path_from_env(envvarname = 'LIBRARY_PATH', dirsep=dirsep, do_cat=do_cat))
 }
 
+#' Gets the content of the INCLUDE_PATH environment variable
+#' 
+#' Gets the content of the INCLUDE_PATH environment variable
+#' 
+#' @param dirsep directory separator to expect/use for the retrieved value
+#' @param do_cat use the `cat` function to output to stdout rather than return the character vector
+#' @return a character vector if do_cat=FALSE, nothing otherwise (default) 
 #' @export
 get_include_path <- function(dirsep='/', do_cat=TRUE) {
 # INCL_PATH_UNIX=`cmd /c .\\\\src\\\\get_includepath.cmd`
     return(get_path_from_env(envvarname = 'INCLUDE_PATH', dirsep=dirsep, do_cat=do_cat))
 }
 
+#' Gets the location of a template configure.win.part
+#' 
+#' Gets the location of a template configure.win.part
+#' 
+#' @param dirsep directory separator to expect/use for the retrieved value
+#' @param do_cat use the `cat` function to output to stdout rather than return the character vector
+#' @return a character vector if do_cat=FALSE, nothing otherwise (default) 
 #' @export
 get_configure_win_part <- function(dirsep='/', do_cat=TRUE) {
     x <- file.path(get_location(), 'exec', 'configure.win.part')
@@ -48,6 +52,10 @@ get_configure_win_part <- function(dirsep='/', do_cat=TRUE) {
     do_cat_if(x, do_cat=do_cat)
 }
 
+#' Gets the location of msvs's command line file copy utility 
+#' 
+#' Gets the location of msvs's command line file copy utility 
+#' 
 #' @export
 get_win_cp_cmd <- function(dirsep='/', do_cat=TRUE) {
     x <- file.path(get_location(), 'exec', 'win_cp.cmd')
@@ -55,6 +63,13 @@ get_win_cp_cmd <- function(dirsep='/', do_cat=TRUE) {
     do_cat_if(x, do_cat=do_cat)
 }
 
+#' Gets the location of a template Makefile.win.in
+#' 
+#' Gets the location of a template Makefile.win.in
+#' 
+#' @param dirsep directory separator to expect/use for the retrieved value
+#' @param do_cat use the `cat` function to output to stdout rather than return the character vector
+#' @return a character vector if do_cat=FALSE, nothing otherwise (default) 
 #' @export
 get_makefile_win_template <- function(dirsep='/', do_cat=TRUE) {
     x <- file.path(get_location(), 'templates', 'Makefile.win.in')
@@ -62,6 +77,13 @@ get_makefile_win_template <- function(dirsep='/', do_cat=TRUE) {
     do_cat_if(x, do_cat=do_cat)
 }
 
+#' Gets the location of a template Makevars.win.in
+#' 
+#' Gets the location of a template Makevars.win.in
+#' 
+#' @param dirsep directory separator to expect/use for the retrieved value
+#' @param do_cat use the `cat` function to output to stdout rather than return the character vector
+#' @return a character vector if do_cat=FALSE, nothing otherwise (default) 
 #' @export
 get_makevars_win_template <- function(dirsep='/', do_cat=TRUE) {
     x <- file.path(get_location(), 'templates', 'Makevars.win.in')
@@ -69,6 +91,13 @@ get_makevars_win_template <- function(dirsep='/', do_cat=TRUE) {
     do_cat_if(x, do_cat=do_cat)
 }
 
+#' Gets the location of msbuild.exe
+#' 
+#' Gets the location of msbuild.exe
+#' 
+#' @param dirsep directory separator to expect/use for the retrieved value
+#' @param do_cat use the `cat` function to output to stdout rather than return the character vector
+#' @return a character vector if do_cat=FALSE, nothing otherwise (default) 
 #' @export
 get_msbuild_exe_path <- function(dirsep='/', do_cat=TRUE) {
     x <- file.path(msvs:::get_location(), 'exec', 'get_msbuildpath.cmd')
@@ -86,22 +115,6 @@ get_msbuild_exe_path <- function(dirsep='/', do_cat=TRUE) {
 # names(replacements) <- 
 # '@SOLUTION_FILE_NAME@'
 #     )
-
-lreplace <- function(x, replacements) {
-    stopifnot(is.list(replacements))
-    tags <- names(replacements)
-    for (f in tags) {
-        x <- stringr::str_replace_all(x, f, replacements[[f]])
-    }
-    x
-}
-
-create_file_from_template <- function(template,out_file, replacements) {
-    if(!file.exists(template)) {stop(paste0('Template file does not exist: ', template))}
-    x <- readLines(con=template)
-    x <- lreplace(x, replacements)
-    writeLines(x, con=out_file)
-}
 
 #' @export
 create_makefile_from_template <- function(template,out_file, solution_filename, from_dll_filenoext, to_dll_filenoext, msbuild_exe_path) {
@@ -262,5 +275,49 @@ prepend_env_path <- function(build_configuration='Debug', arch='x64', paths=samp
 	}
 	Sys.setenv(PATH=libp)
 
+}
+
+
+##############
+## not exported
+##############
+
+lreplace <- function(x, replacements) {
+    stopifnot(is.list(replacements))
+    tags <- names(replacements)
+    for (f in tags) {
+        x <- stringr::str_replace_all(x, f, replacements[[f]])
+    }
+    x
+}
+
+create_file_from_template <- function(template,out_file, replacements) {
+    if(!file.exists(template)) {stop(paste0('Template file does not exist: ', template))}
+    x <- readLines(con=template)
+    x <- lreplace(x, replacements)
+    writeLines(x, con=out_file)
+}
+
+apply_dirsep <- function(x, dirsep='/') {
+    # We use string replacement to allow for multipls backslashes that is required in 
+    # character replacement in Makefile template files
+    # return (normalizePath( x, winslash=dirsep, mustWork=FALSE))
+    # x <- "c:/src/csiro\\blah\\blah"
+    x <- stringr::str_replace_all(x, '/', dirsep)
+    x <- stringr::str_replace_all(x, '\\\\', dirsep)
+    return(x)
+}
+
+get_path_from_env <- function(envvarname, dirsep='/', do_cat=TRUE) {
+# LIB_PATH_UNIX=`cmd /c .\\\\src\\\\get_libpath.cmd`
+    env <- Sys.getenv(envvarname)
+    if (env == '') {stop(paste0('environment variable not found: ', envvarname))}
+    x <- apply_dirsep( env, dirsep )
+    do_cat_if(x, do_cat=do_cat)
+}
+
+do_cat_if <- function(x, do_cat=TRUE) {
+    if(do_cat) {cat(x)}
+    else { return(x) }
 }
 
