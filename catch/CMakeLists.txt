@@ -24,7 +24,8 @@ SET (${this_target}_SOURCE_FILES
 
 
 SET(${this_target}_HEADER_FILES
-  include/catch/catch_macros.hpp
+	include/catch/catch_macros.hpp
+	include/catch/catch.hpp
 )
 
 IF (ENABLE_CODECOVERAGE)
