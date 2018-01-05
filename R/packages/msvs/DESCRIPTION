@@ -1,8 +1,8 @@
 Package: msvs
 Type: Package
 Title: Helper scripts for using Microsoft compilers for R packages. 
-Version: 0.1-1
-Date: 2017-04-04
+Version: 0.2-1
+Date: 2018-01-05
 Authors@R: c( person("Jean-Michel", "Perraud", email =
     "jean-michel.perraud@csiro.au", role = c("aut", "cre")))
 Author: Jean-Michel Perraud [aut, cre]
