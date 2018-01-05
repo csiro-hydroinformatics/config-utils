@@ -113,6 +113,42 @@ get_msbuild_exe_path <- function(dirsep = "/", do_cat = TRUE) {
   do_cat_if(msbuild_exe, do_cat = do_cat)
 }
 
+make_visualstudio_envvar <- function(major_version=14, minor_version=0) {
+  paste0('VS',major_version, minor_version, 'COMNTOOLS')
+}
+
+#' Gets the location of msbuild.exe
+#' 
+#' Gets the location of msbuild.exe
+#' 
+#' @param dirsep directory separator to expect/use for the retrieved value
+#' @return a character vector if do_cat=FALSE, nothing otherwise (default) 
+#' @export
+has_visualstudio <- function(major_version=14, minor_version=0) {
+  return(Sys.getenv(make_visualstudio_envvar(major_version, minor_version))!="")
+}
+
+#' @export
+get_visualstudio_env_setup_bat <- function(major_version=14, minor_version=0, dirsep='\\', with_quotes='"') {
+  common_tools <- Sys.getenv(make_visualstudio_envvar(major_version, minor_version))
+  if(common_tools=="") return("")
+  common_tools <- normalizePath(common_tools, winslash='/')
+  vcvarsall_file <- file.path(common_tools, "../../VC/vcvarsall.bat")
+  dosdir <- normalizePath(vcvarsall_file, winslash=dirsep)
+  x <- paste0(with_quotes, dosdir, with_quotes)
+  do_cat_if(x, do_cat = do_cat)
+}
+
+# R seems not to get the modified environment variables 
+setup_visualstudio_environment <- function(major_version=14, minor_version=0) {
+  common_tools <- Sys.getenv(make_visualstudio_envvar(major_version, minor_version))
+  common_tools <- normalizePath(common_tools, winslash='/')
+  vcvarsall_file <- file.path(common_tools, "../../VC/vcvarsall.bat")
+  stopifnot(file.exists(vcvarsall_file))
+  invisible(system(paste0('"',vcvarsall_file,'"'), intern = TRUE))
+}
+
+
 # template <- 'C:/src/github_jm/config-utils/R/packages/msvs/inst/templates/Makefile.win.in'
 # replacements <- list('blah') names(replacements) <- '@SOLUTION_FILE_NAME@' )
 

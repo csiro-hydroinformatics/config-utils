@@ -2,15 +2,50 @@
 
 @set exit_code=0
 
-set VSCOMNTOOLS=%VS140COMNTOOLS%
-@if "%VSCOMNTOOLS%"=="" VSCOMNTOOLS=%VS120COMNTOOLS%
-@if "%VSCOMNTOOLS%"=="" VSCOMNTOOLS=%VS110COMNTOOLS%
-@if "%VSCOMNTOOLS%"=="" goto error_no_VS110COMNTOOLSDIR
-REM for instance C:\bin\VS2012\Common7\Tools\
 
-set VSDEVENV="%VSCOMNTOOLS%..\..\VC\vcvarsall.bat"
-@if not exist %VSDEVENV% goto error_no_vcvarsall
-@call %VSDEVENV%
+REM load Visual Studio 2017 developer command prompt setup has changed compared to previous versions. 
+REM Inspired from: https://github.com/ctaggart  via https://github.com/Microsoft/visualfsharp/pull/2690/commits/bf52776167fe6a9f2354ea96094a025191dbd3e7
+
+set progf=%ProgramFiles(x86)%\Microsoft Visual Studio\2017\
+set VsDevCmdFile=\Common7\Tools\VsDevCmd.bat
+
+if exist "%progf%Enterprise%VsDevCmdFile%" (
+    call "%progf%Enterprise%VsDevCmdFile%"
+    goto end
+)
+if exist "%progf%Professional%VsDevCmdFile%" (
+    call "%progf%Professional%VsDevCmdFile%"
+    goto end
+)
+if exist "%progf%Community%VsDevCmdFile%" (
+    call "%progf%Community%VsDevCmdFile%"
+    goto end
+)
+if exist "%progf%BuildTools%VsDevCmdFile%" (
+    call "%progf%BuildTools%VsDevCmdFile%"
+    goto end
+)
+
+REM for instance C:\bin\VS2012\Common7\Tools\
+if defined VSCOMNTOOLS (
+    goto found
+)
+
+if defined VS140COMNTOOLS set VSCOMNTOOLS=%VS140COMNTOOLS%
+if defined VS140COMNTOOLS goto found
+if defined VS120COMNTOOLS set VSCOMNTOOLS=%VS140COMNTOOLS%
+if defined VS120COMNTOOLS goto found
+if defined VS110COMNTOOLS set VSCOMNTOOLS=%VS140COMNTOOLS%
+if defined VS110COMNTOOLS goto found
+
+@echo ERROR: Could not locate command prompt devenv setup for anything between VS2012 and VS2017
+@set exit_code=127
+@goto end
+
+:found
+set VSDEVENV=%VSCOMNTOOLS%..\..\VC\vcvarsall.bat
+@if not exist "%VSDEVENV%" goto error_no_vcvarsall
+@call "%VSDEVENV%"
 @goto end
 
 :error_no_VS110COMNTOOLSDIR
