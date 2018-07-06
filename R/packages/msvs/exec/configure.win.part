@@ -12,11 +12,11 @@ fi
 
 MAKEVARS_FILE=$SRC_DIR/Makevars.win
 # MAKEVARS_INFILE=$MAKEVARS_FILE.in
-MAKEVARS_INFILE=`${RSCRIPT} -e "msvs:::get_makevars_win_template()"`
+MAKEVARS_INFILE=`${RSCRIPT} -e "library(msvs) ; msvs::get_makevars_win_template()"`
 
 MAKEFILE_FILE=$SRC_DIR/Makefile.win
 # MAKEFILE_INFILE=$MAKEFILE_FILE.in
-MAKEFILE_INFILE=`${RSCRIPT} -e "msvs:::get_makefile_win_template()"`
+MAKEFILE_INFILE=`${RSCRIPT} -e "library(msvs) ; msvs::get_makefile_win_template()"`
 
 str_split() {
 	RESULT=`echo $1 | sed -e 's/;/ /g'`
@@ -27,8 +27,8 @@ RSCRIPT="${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe"
 
 # LIB_PATH_UNIX=`cmd /c .\\\\src\\\\get_libpath.cmd`
 # INCL_PATH_UNIX=`cmd /c .\\\\src\\\\get_includepath.cmd`
-LIB_PATH_UNIX=`${RSCRIPT} -e "msvs:::get_library_path()"`
-INCL_PATH_UNIX=`${RSCRIPT} -e "msvs:::get_include_path()"`
+LIB_PATH_UNIX=`${RSCRIPT} -e "library(msvs) ; msvs::get_library_path()"`
+INCL_PATH_UNIX=`${RSCRIPT} -e "library(msvs) ; msvs::get_include_path()"`
 
 if [ "$LIB_PATH_UNIX" = "" ]
 then
@@ -98,7 +98,7 @@ then  # we will rely on Makevars and RTools' GCC
 		done
 	fi
 
-	`${RSCRIPT} -e "msvs:::create_makevars_from_template(template='$MAKEVARS_INFILE',out_file='$MAKEVARS_FILE', local_libs_args='${local_libs_args}',local_include_args='${local_include_args}', dependency_lib_names_args='${dependency_lib_names_args}', additional_pkg_cppflags='${additional_pkg_cppflags}', additional_pkg_libsflags='${additional_pkg_libsflags}')"`
+	`${RSCRIPT} -e "library(msvs) ; msvs::create_makevars_from_template(template='$MAKEVARS_INFILE',out_file='$MAKEVARS_FILE', local_libs_args='${local_libs_args}',local_include_args='${local_include_args}', dependency_lib_names_args='${dependency_lib_names_args}', additional_pkg_cppflags='${additional_pkg_cppflags}', additional_pkg_libsflags='${additional_pkg_libsflags}')"`
 
 
 
@@ -122,7 +122,7 @@ else
 	## Find the location of the MSBuild.exe executable. Typically:
 	# C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe or
 	# C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
-	MSBUILD_EXE_SLASH=`${RSCRIPT} -e "msvs:::get_msbuild_exe_path()"`
+	MSBUILD_EXE_SLASH=`${RSCRIPT} -e "library(msvs) ; msvs::get_msbuild_exe_path()"`
 	if [ ! "$MSBUILD_EXE_SLASH" = "MSBuild.exe" ]
 	then
 		if [ ! -e $MSBUILD_EXE_SLASH ]
@@ -134,6 +134,6 @@ else
 	# subst="s|@MSBUILD_EXE_PATH@|$MSBUILD_EXE_SLASH|g"
 	# # echo $subst
 	# sed -e "$subst" $MAKEFILE_INFILE > $MAKEFILE_FILE
-	`${RSCRIPT} -e "msvs:::create_makefile_from_template(template='$MAKEFILE_INFILE',out_file='$MAKEFILE_FILE', solution_filename='$solution_filename', from_dll_filenoext='$from_dll_filenoext', to_dll_filenoext='$to_dll_filenoext', msbuild_exe_path='$MSBUILD_EXE_SLASH')"`
+	`${RSCRIPT} -e "library(msvs) ; msvs::create_makefile_from_template(template='$MAKEFILE_INFILE',out_file='$MAKEFILE_FILE', solution_filename='$solution_filename', from_dll_filenoext='$from_dll_filenoext', to_dll_filenoext='$to_dll_filenoext', msbuild_exe_path='$MSBUILD_EXE_SLASH')"`
 	echo "INFO: Created $MAKEFILE_FILE"
 fi # end if [ "$COMPILE_WITH_VCPP" = "" ]

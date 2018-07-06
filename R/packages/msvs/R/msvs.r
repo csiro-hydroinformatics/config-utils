@@ -99,7 +99,7 @@ get_makevars_win_template <- function(dirsep = "/", do_cat = TRUE) {
 #' @return a character vector if do_cat=FALSE, nothing otherwise (default) 
 #' @export
 get_msbuild_exe_path <- function(dirsep = "/", do_cat = TRUE) {
-  x <- file.path(msvs:::get_location(), "exec", "get_msbuildpath.cmd")
+  x <- file.path(get_location(), "exec", "get_msbuildpath.cmd")
   if (!file.exists(x)) {
     stop("script to find msbuild was not found")
   }
