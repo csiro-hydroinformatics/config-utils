@@ -5,7 +5,7 @@
 # - Find YAMLCpp
 # Find the YAMLCpp includes and library
 # This module defines
-#  YAMLCPP_INCLUDE_DIRS, where to find json.h, etc.
+#  YAMLCPP_INCLUDE_DIRS, where to find yaml.h, etc.
 #  YAMLCPP_LIBRARIES, the libraries needed to use yaml-cpp.
 #  YAMLCPP_FOUND, If false, do not try to use yaml-cpp.
 #  also defined, but not for general use are
