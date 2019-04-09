@@ -43,7 +43,7 @@ if (NETCDF_INCLUDE_DIR AND NETCDF_LIBRARY)
   set (NETCDF_FIND_QUIETLY TRUE)
 endif ()
 
-## First, a section that tries defaults(? inherited from source), then Pearcey, then BoM machine settings.
+## First, a section that tries defaults(? inherited from source), then A Cluster, then BoM machine settings.
 
 set(USE_DEFAULT_PATHS "NO_DEFAULT_PATH")
 if(NETCDF_USE_DEFAULT_PATHS)
@@ -60,27 +60,34 @@ find_library (NETCDF_LIBRARY NAMES netcdf
 mark_as_advanced (NETCDF_LIBRARY)
 
 
-## per202 include the Pearcey specific finders
-## after ""module load netcdf"" I observe:
-## NETCDF_HOME=/apps/netcdf/4.3.2
-
+## on clusters
+## after ""module load netcdf"" I observe, well, depends on the cluster:
+## NETCDF_HOME=/apps/netcdf/4.4.1.1
+## NETCDF_ROOT=/apps/netcdf/4.4.1.1
+## NETCDF4_DIR=/apps/netcdf/4.4.1.1
+## or:
+## env | grep NETCDF
+## NETCDF_ROOT=/apps/netcdf/4.3.3.1
+## NETCDF_VERSION=4.3.3.1
+## NETCDF_BASE=/apps/netcdf/4.3.3.1
+## NETCDF=/apps/netcdf/4.3.3.1
 if (NOT NETCDF_INCLUDE_DIR)
-	MESSAGE("Trying for Pearcey - NETCDF_HOME = $ENV{NETCDF_HOME}")
-	set (PEARCEY_NETCDF_INCLUDE_DIR $ENV{NETCDF_HOME}/include)
-	set (PEARCEY_NETCDF_LIBRARY_DIR $ENV{NETCDF_HOME}/lib)  
-	message ("PEARCEY_NETCDF_INCLUDE_DIR=${PEARCEY_NETCDF_INCLUDE_DIR}")
-	message ("PEARCEY_NETCDF_LIBRARY_DIR=${PEARCEY_NETCDF_LIBRARY_DIR}")  
+	MESSAGE("Trying for A Cluster - NETCDF_ROOT = $ENV{NETCDF_ROOT}")
+	set (CLUSTER_NETCDF_INCLUDE_DIR $ENV{NETCDF_ROOT}/include)
+	set (CLUSTER_NETCDF_LIBRARY_DIR $ENV{NETCDF_ROOT}/lib)  
+	message ("CLUSTER_NETCDF_INCLUDE_DIR=${CLUSTER_NETCDF_INCLUDE_DIR}")
+	message ("CLUSTER_NETCDF_LIBRARY_DIR=${CLUSTER_NETCDF_LIBRARY_DIR}")  
 	find_path(NETCDF_INCLUDE_DIR netcdf.h
-			HINTS ${PEARCEY_NETCDF_INCLUDE_DIR}
-			PATHS ${PEARCEY_NETCDF_INCLUDE_DIR})
+			HINTS ${CLUSTER_NETCDF_INCLUDE_DIR}
+			PATHS ${CLUSTER_NETCDF_INCLUDE_DIR})
 
 	find_library (NETCDF_LIBRARY NAMES netcdf 
-				  HINTS ${PEARCEY_NETCDF_LIBRARY_DIR}
-				  PATHS ${PEARCEY_NETCDF_LIBRARY_DIR})
+				  HINTS ${CLUSTER_NETCDF_LIBRARY_DIR}
+				  PATHS ${CLUSTER_NETCDF_LIBRARY_DIR})
 	# message ("The path to the netcdf headers is ${NETCDF_INCLUDE_DIR}")
 	# message ("The path to the netcdf libraries is ${NETCDF_LIBRARY}")
 endif ()
-## per202 END include the Pearcey specific finders
+## per202 END include the A Cluster specific finders
 
 
 ## per202 include the BoM EHP specific finders
