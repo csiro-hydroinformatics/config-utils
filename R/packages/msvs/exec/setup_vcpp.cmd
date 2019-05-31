@@ -6,8 +6,16 @@
 REM load Visual Studio 2017 developer command prompt setup has changed compared to previous versions. 
 REM Inspired from: https://github.com/ctaggart  via https://github.com/Microsoft/visualfsharp/pull/2690/commits/bf52776167fe6a9f2354ea96094a025191dbd3e7
 
-set progf=%ProgramFiles(x86)%\Microsoft Visual Studio\2017\
 set VsDevCmdFile=\Common7\Tools\VsDevCmd.bat
+
+set progf=%ProgramFiles(x86)%\Microsoft Visual Studio\2019\
+if exist "%progf%" (
+    goto foundVsDevCmdFile
+)
+
+set progf=%ProgramFiles(x86)%\Microsoft Visual Studio\2017\
+
+:foundVsDevCmdFile
 
 if exist "%progf%Enterprise%VsDevCmdFile%" (
     call "%progf%Enterprise%VsDevCmdFile%"
