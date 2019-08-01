@@ -66,11 +66,12 @@ if (EIGEN3_INCLUDE_DIR)
   set(EIGEN3_FOUND ${EIGEN3_VERSION_OK})
 
 else (EIGEN3_INCLUDE_DIR)
-
+# $ENV{EIGEN_HOME}/include required on Pearcey after module load eigen/3.3.x
   find_path(EIGEN3_INCLUDE_DIR NAMES signature_of_eigen3_matrix_library
       HINTS
       ENV EIGEN3_ROOT 
       ENV EIGEN3_ROOT_DIR
+      $ENV{EIGEN_HOME}/include
       PATHS
       ${CMAKE_INSTALL_PREFIX}/include
       ${KDE4_INCLUDE_DIR}
