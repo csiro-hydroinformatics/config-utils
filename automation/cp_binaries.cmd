@@ -38,11 +38,11 @@ set exit_code=0
 @if "%clean%"=="clean" if exist %out_dir_32%\%FilePattern%.* del %out_dir_32%\%FilePattern%.* /Q
 
 call %~d0%~p0.\cp_lib_files.cmd %fp% %RootProjDir%\x64\%bc%\ %out_dir_64% 
-@if not errorlevel 0 set exit_code=%errorlevel%
-@if not errorlevel 0 goto exit
+@if %errorlevel% neq 0 set exit_code=%errorlevel%
+@if %errorlevel% neq 0 goto exit
 call %~d0%~p0.\cp_lib_files.cmd %fp% %RootProjDir%\Win32\%bc%\ %out_dir_32% 
-@if not errorlevel 0 set exit_code=%errorlevel%
-@if not errorlevel 0 goto exit
+@if %errorlevel% neq 0 set exit_code=%errorlevel%
+@if %errorlevel% neq 0 goto exit
 
 :exit
 exit /b %exit_code%

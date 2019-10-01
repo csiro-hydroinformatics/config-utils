@@ -31,8 +31,8 @@
 @set build_options=/t:%Mode% /p:Configuration=%BuildConfiguration% /p:Platform=%BuildPlatform% /m  /consoleloggerparameters:ErrorsOnly
 @echo "*** Build parameters: BuildConfiguration=%BuildConfiguration% platform=%BuildPlatform% Mode=%Mode% ***"
 %MSB% %SLN% %build_options%
-@if not errorlevel 0 set exit_code=%errorlevel%
-@if not errorlevel 0 goto Build_fail
+@if %errorlevel% neq 0 set exit_code=%errorlevel%
+@if %errorlevel% neq 0 goto Build_fail
 
 @echo "*** COMPLETED: Build parameters: BuildConfiguration=%BuildConfiguration% platform=%BuildPlatform% Mode=%Mode% ***"
 

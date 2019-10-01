@@ -14,8 +14,8 @@ REM f:
 
 REM set current_dir=%~d0%~p0.\
 REM call %current_dir%common_setup.cmd
-REM @if not errorlevel 0 set exit_code=%errorlevel%
-REM @if not errorlevel 0 goto exit
+REM @if %errorlevel% neq 0 set exit_code=%errorlevel%
+REM @if %errorlevel% neq 0 goto exit
 
 
 @echo "*** Build configuration: %bc% ***"
@@ -23,15 +23,15 @@ REM @if not errorlevel 0 goto exit
 :: Build the 64 bits native binaries
 set BuildPlatform=x64
 call %~d0%~p0.\build_solution.cmd %bc% %BuildPlatform% %MSB% %Mode% %solution%
-@if not errorlevel 0 set exit_code=%errorlevel%
-@if not errorlevel 0 goto exit
+@if %errorlevel% neq 0 set exit_code=%errorlevel%
+@if %errorlevel% neq 0 goto exit
 @echo "*** %bc%, %BuildPlatform% COMPLETE ***"
 
 :: Build the 32 bits native binaries
 set BuildPlatform=Win32
 call %~d0%~p0.\build_solution.cmd %bc% %BuildPlatform% %MSB% %Mode% %solution%
-@if not errorlevel 0 set exit_code=%errorlevel%
-@if not errorlevel 0 goto exit
+@if %errorlevel% neq 0 set exit_code=%errorlevel%
+@if %errorlevel% neq 0 goto exit
 @echo "*** %bc%, %BuildPlatform% COMPLETE ***"
 
 set exit_code=0

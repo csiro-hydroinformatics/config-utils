@@ -16,8 +16,8 @@ set exit_code=0
 robocopy %src_dir% %target_dir% %FilePattern%.dll %xcopy_options%
 robocopy %src_dir% %target_dir% %FilePattern%.lib %xcopy_options%
 if exist %src_dir%%FilePattern%.pdb robocopy %src_dir% %target_dir% %FilePattern%.pdb %xcopy_options%
-@if not errorlevel 0 set exit_code=%errorlevel%
-@if not errorlevel 0 goto exit
+@if %errorlevel% neq 0 set exit_code=%errorlevel%
+@if %errorlevel% neq 0 goto exit
 :: xcopy %src_dir%\jsoncpp.* %target_dir% %xcopy_options%
 
 
