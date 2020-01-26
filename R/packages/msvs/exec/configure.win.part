@@ -27,8 +27,9 @@ RSCRIPT="${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe"
 
 # LIB_PATH_UNIX=`cmd /c .\\\\src\\\\get_libpath.cmd`
 # INCL_PATH_UNIX=`cmd /c .\\\\src\\\\get_includepath.cmd`
-LIB_PATH_UNIX=`${RSCRIPT} -e "library(msvs) ; msvs::get_library_path()"`
 INCL_PATH_UNIX=`${RSCRIPT} -e "library(msvs) ; msvs::get_include_path()"`
+LIB_PATH_UNIX=`${RSCRIPT} -e "library(msvs) ; msvs::get_library_path()"`
+DEV_LIB_PATH_UNIX=`${RSCRIPT} -e "library(msvs) ; msvs::get_path_from_env(envvarname='DEV_LIBRARY_PATH')"`
 
 if [ "$LIB_PATH_UNIX" = "" ]
 then
@@ -38,13 +39,27 @@ else
 	echo "Found LIB_PATH_UNIX=$LIB_PATH_UNIX"
 fi
 
+arch_paths=
+
+if [ "$DEV_LIB_PATH_UNIX" != "" ]
+then
+	echo "Also found DEV_LIB_PATH_UNIX=$DEV_LIB_PATH_UNIX"
+	echo ""
+	echo "Prepend the content of DEV_LIB_PATH_UNIX first in the library search path"
+    str_split $DEV_LIB_PATH_UNIX 
+    paths=$RESULT
+    for p in $paths ; do \
+         arch_paths="$arch_paths -L$p" ; \
+    done
+fi
+
 str_split $LIB_PATH_UNIX 
 paths=$RESULT
 
 ##########################
+# We need to pad according to the architecture (admitedly all 64 bits these days)
 # e.g.
 # -Lc:/localdev/lib/64 -Lc:/local/lib/64 
-arch_paths=
 for p in $paths ; do \
      arch_paths="$arch_paths -L$p/\$(ARCH_NB)" ; \
 done
