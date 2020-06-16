@@ -9,7 +9,7 @@ Author: Jean-Michel Perraud [aut, cre]
 Maintainer: Jean-Michel Perraud <per202@csiro.au>
 Description: msvs is a package with facilities to use microsoft visual studio related compilers for R packages.
 URL: https://github.com/jmp75/config-utils/tree/master/R/packages
-License: LGPL-3
+License: BSD-3
 Imports:
     methods,
     stringr
