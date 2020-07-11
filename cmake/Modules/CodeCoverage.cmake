@@ -66,6 +66,11 @@
 # - Make all add_custom_target()s VERBATIM to auto-escape wildcard characters
 #   in EXCLUDEs, and remove manual escaping from gcovr targets
 #
+# 2020-07-11, J-M Perraud (https://github.com/jmp75)
+# - Change the handling of BASE_DIRECTORY so that it can be relative to the 
+#   location of the invoking CMakeLists.txt rather than (apparently?) 
+#   the build directory which may vary depending on usage.
+#
 # USAGE:
 #
 # 1. Copy this file into your cmake modules path.
@@ -177,6 +182,61 @@ if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_Fortran_COMPILER_ID STREQUAL "GNU
     link_libraries(gcov)
 endif()
 
+# An implementation of path concatenation to handle tests on the BASE_DIRECTORY argument of 
+# the setup_target_for_coverage_* functions
+#
+# Adapted from the proposed workaround for https://gitlab.kitware.com/cmake/cmake/-/issues/19568 
+# (see issue for authorship credits)
+#
+# This may "soon" become redundant in cmake as there is ongoing fundational work for path concatenation: https://gitlab.kitware.com/cmake/cmake/-/merge_requests/4968
+# Modelled after Python’s os.path.join
+# https://docs.python.org/3.7/library/os.path.html#os.path.join
+# Windows PROBABLY supported via TO_CMAKE_PATH (but not tested)
+#
+# Usage:
+# join_paths(
+#     joined_path # name of the variable set 
+#     first_path_segment ${CMAKE_CURRENT_LIST_DIR} # first path segment to concatenate
+#     "../../path/to/my_shared_library")  # one or more path segments to join
+function(join_paths joined_path first_path_segment)
+    file(TO_CMAKE_PATH "${joined_path}" joined_path_cm)
+    file(TO_CMAKE_PATH "${first_path_segment}" first_path_segment_cm)
+    set(temp_path "${first_path_segment_cm}")
+    foreach(current_segment IN LISTS ARGN)
+        file(TO_CMAKE_PATH "${current_segment}" current_segment_cm)
+        if(NOT ("${current_segment_cm}" STREQUAL ""))
+            if(IS_ABSOLUTE "${current_segment_cm}")
+                set(temp_path "${current_segment_cm}")
+            else()
+                set(temp_path "${temp_path}/${current_segment_cm}")
+            endif()
+        endif()
+    endforeach()
+    set(${joined_path} "${temp_path}" PARENT_SCOPE)
+endfunction()
+
+
+# Find the base directory to use for the  -r <root>, --root <root> option of gcovr
+# if the argument specified_dir is a relative path, it is joined with
+# (appended to) the value of CMAKE_CURRENT_LIST_DIR. 
+# If the resulting path exists, the new var_name is set to it
+# otherwise falls back to the value of PROJECT_SOURCE_DIR 
+#
+# Usage:
+# find_basedir(
+#     my_base_dir 
+#     "../../../path/to/by_lib")
+function(find_basedir var_name specified_dir)
+    join_paths(BASEDIR ${CMAKE_CURRENT_LIST_DIR} ${specified_dir})
+    if(NOT IS_DIRECTORY ${BASEDIR})
+        message (STATUS "Root directory of source files for gcovr reverted to PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}, since ${BASEDIR} is not a valid directory.")
+        set(BASEDIR ${PROJECT_SOURCE_DIR})
+    else()
+        message(STATUS "Root directory of source files for gcovr: ${BASEDIR}")
+    endif()
+    set(${var_name} "${BASEDIR}" PARENT_SCOPE)
+endfunction()
+
 # Defines a target for running and collection code coverage information
 # Builds dependencies, runs the given executable and outputs reports.
 # NOTE! The executable should always have a ZERO as exit code otherwise
@@ -208,9 +268,8 @@ function(setup_target_for_coverage_lcov)
         message(FATAL_ERROR "genhtml not found! Aborting...")
     endif() # NOT GENHTML_PATH
 
-    # Set base directory (as absolute path), or default to PROJECT_SOURCE_DIR
-    if(${Coverage_BASE_DIRECTORY})
-        get_filename_component(BASEDIR ${Coverage_BASE_DIRECTORY} ABSOLUTE)
+    if(DEFINED Coverage_BASE_DIRECTORY)
+        find_basedir(BASEDIR ${Coverage_BASE_DIRECTORY})
     else()
         set(BASEDIR ${PROJECT_SOURCE_DIR})
     endif()
@@ -304,9 +363,8 @@ function(setup_target_for_coverage_gcovr_xml)
         message(FATAL_ERROR "gcovr not found! Aborting...")
     endif() # NOT GCOVR_PATH
 
-    # Set base directory (as absolute path), or default to PROJECT_SOURCE_DIR
-    if(${Coverage_BASE_DIRECTORY})
-        get_filename_component(BASEDIR ${Coverage_BASE_DIRECTORY} ABSOLUTE)
+    if(DEFINED Coverage_BASE_DIRECTORY)
+        find_basedir(BASEDIR ${Coverage_BASE_DIRECTORY})
     else()
         set(BASEDIR ${PROJECT_SOURCE_DIR})
     endif()
@@ -376,9 +434,8 @@ function(setup_target_for_coverage_gcovr_html)
         message(FATAL_ERROR "gcovr not found! Aborting...")
     endif() # NOT GCOVR_PATH
 
-    # Set base directory (as absolute path), or default to PROJECT_SOURCE_DIR
-    if(${Coverage_BASE_DIRECTORY})
-        get_filename_component(BASEDIR ${Coverage_BASE_DIRECTORY} ABSOLUTE)
+    if(DEFINED Coverage_BASE_DIRECTORY)
+        find_basedir(BASEDIR ${Coverage_BASE_DIRECTORY})
     else()
         set(BASEDIR ${PROJECT_SOURCE_DIR})
     endif()
@@ -400,6 +457,7 @@ function(setup_target_for_coverage_gcovr_html)
         list(APPEND GCOVR_EXCLUDE_ARGS "${EXCLUDE}")
     endforeach()
 
+    message ("${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}")
     add_custom_target(${Coverage_NAME}
         # Run tests
         ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
