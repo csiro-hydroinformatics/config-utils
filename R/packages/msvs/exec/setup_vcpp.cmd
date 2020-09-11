@@ -17,16 +17,16 @@ set progf=%ProgramFiles(x86)%\Microsoft Visual Studio\2017\
 
 :foundVsDevCmdFile
 
-if exist "%progf%Enterprise%VsDevCmdFile%" (
-    call "%progf%Enterprise%VsDevCmdFile%"
+if exist "%progf%Community%VsDevCmdFile%" (
+    call "%progf%Community%VsDevCmdFile%"
     goto end
 )
 if exist "%progf%Professional%VsDevCmdFile%" (
     call "%progf%Professional%VsDevCmdFile%"
     goto end
 )
-if exist "%progf%Community%VsDevCmdFile%" (
-    call "%progf%Community%VsDevCmdFile%"
+if exist "%progf%Enterprise%VsDevCmdFile%" (
+    call "%progf%Enterprise%VsDevCmdFile%"
     goto end
 )
 if exist "%progf%BuildTools%VsDevCmdFile%" (
@@ -34,6 +34,7 @@ if exist "%progf%BuildTools%VsDevCmdFile%" (
     goto end
 )
 
+:fallbackVSCOMNTOOLS
 REM for instance C:\bin\VS2012\Common7\Tools\
 if defined VSCOMNTOOLS (
     goto found

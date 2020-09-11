@@ -326,6 +326,7 @@ apply_dirsep <- function(x, dirsep = "/") {
   return(x)
 }
 
+#' @export
 get_path_from_env <- function(envvarname, dirsep = "/", do_cat = TRUE) {
   # LIB_PATH_UNIX=`cmd /c .\\\\src\\\\get_libpath.cmd`
   env <- Sys.getenv(envvarname)
