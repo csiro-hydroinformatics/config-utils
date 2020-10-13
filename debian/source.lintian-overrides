@@ -1,0 +1,4 @@
+libconfig-utils-dev source: empty-short-license-in-dep5-copyright (line 10)
+libconfig-utils-dev source: missing-field-in-dep5-copyright Copyright (empty field, line 6)
+libconfig-utils-dev source: missing-field-in-dep5-copyright License (paragraph at line 6)
+libconfig-utils-dev source: no-debian-changes

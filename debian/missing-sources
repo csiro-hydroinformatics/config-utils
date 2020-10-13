@@ -1,0 +1,5 @@
+# cmake build outputs
+build/*
+obj-*/*
+catch/build/*
+catch/obj-*/*
