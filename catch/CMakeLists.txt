@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.12)
 
 ## start setting
 SET (this_target catch)
@@ -60,7 +60,7 @@ add_library(${this_target} INTERFACE)
 # )
 
 
-# Files to be installed - used by packaging stuff below
+# Files to be installed
 INSTALL(FILES ${${this_target}_HEADER_FILES} DESTINATION include/catch)
 
 

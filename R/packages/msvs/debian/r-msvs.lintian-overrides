@@ -1,0 +1,9 @@
+r-msvs: executable-not-elf-or-script usr/lib/R/site-library/msvs/exec/configure.win.part
+r-msvs: executable-not-elf-or-script usr/lib/R/site-library/msvs/exec/create_lib.cmd
+r-msvs: executable-not-elf-or-script usr/lib/R/site-library/msvs/exec/get_includepath.cmd
+r-msvs: executable-not-elf-or-script usr/lib/R/site-library/msvs/exec/get_libpath.cmd
+r-msvs: executable-not-elf-or-script usr/lib/R/site-library/msvs/exec/get_msbuildpath.cmd
+r-msvs: executable-not-elf-or-script usr/lib/R/site-library/msvs/exec/get_winsdk.cmd
+r-msvs: executable-not-elf-or-script usr/lib/R/site-library/msvs/exec/setup_vcpp.cmd
+r-msvs: executable-not-elf-or-script usr/lib/R/site-library/msvs/exec/win_cp.cmd
+r-msvs: extended-description-line-too-long line 1

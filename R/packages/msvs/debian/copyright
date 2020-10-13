@@ -1,0 +1,13 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: config-utils
+Upstream-Contact: Jean-Michel Perraud <per202@csiro.au>
+Source: <https://github.com/csiro-hydroinformatics/config-utils>
+
+Copyright:
+Files: *
+    Copyright (C) 2020 CSIRO
+
+License: LGPL-3
+    GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007
+    .
+    See /usr/share/common-licenses/LGPL-3
