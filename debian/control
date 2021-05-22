@@ -3,7 +3,7 @@ Maintainer: Jean-Michel Perraud <per202@csiro.au>
 Section: libdevel
 # Testsuite: autopkgtest-pkg-r
 Priority: optional
-Build-Depends: debhelper-compat (= 13)
+Build-Depends: debhelper-compat (= 11)
 Standards-Version: 4.5.0
 Homepage: https://github.com/csiro-hydroinformatics/config-utils
 #Vcs-Browser: https://salsa.debian.org/debian/moirai
