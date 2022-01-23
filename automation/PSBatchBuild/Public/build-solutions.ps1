@@ -49,7 +49,6 @@ function Build-Solutions {
         [string]$ToolsVersion = "14.0"
     )
 
-    $success = [Microsoft.Build.Execution.BuildResultCode]::Success
     :iterSln foreach ($solution in $solutions.values)
     {
         foreach ($BuildPlatform in $BuildPlatforms)
@@ -59,11 +58,14 @@ function Build-Solutions {
             # Member of Microsoft.Build.Logging.ConsoleLogger
             # Summary:
             # A semi-colon delimited list of "key[=value]" parameter pairs.
-
-            # but using the following still outputs warnings to the console -DefaultLoggerParameters 'consoleloggerparameters=ErrorsOnly'
-
-            $buildResults = Invoke-MSBuild -Project $solution -Target $BuildMode -Verbosity Quiet -DefaultLogger Host -Property @{Configuration=$BuildConfiguration;Platform=$BuildPlatform} -ToolsVersion $ToolsVersion
-            if ($buildResults.OverallResult -ne $success) {break iterSln} 
+            # $msb_params = "/target:$BuildMode /property:Configuration=$BuildConfiguration;Platform=$BuildPlatform /toolsversion:$ToolsVersion /consoleloggerparameters:ErrorsOnly"
+            # NOTE: if using /toolsversion, the build fails, because error MSB4019: The imported project "C:\Microsoft.Cpp.Default.props" was not found
+            # Specifying these tools version thing may be deprecated after moving to https://github.com/deadlydog/Invoke-MsBuild
+            $msb_params = "/target:$BuildMode /property:Configuration=$BuildConfiguration;Platform=$BuildPlatform /consoleloggerparameters:ErrorsOnly"
+            $blah = "Invoke-MSBuild -Path $solution -MsBuildParameters '$msb_params' -LogVerbosity q"
+            echo ($blah)
+            $buildResults = Invoke-MSBuild -Path $solution -MsBuildParameters "$msb_params" -LogVerbosity q 
+            if ($buildResults.BuildSucceeded -eq $false) {break iterSln} 
         }
     }
 }

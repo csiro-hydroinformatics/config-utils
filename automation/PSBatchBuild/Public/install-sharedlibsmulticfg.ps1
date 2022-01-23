@@ -48,7 +48,7 @@ function Install-SharedLibsMultiCfg
     )
     foreach ($cfg in $LibsDirs.keys)
     {
-        # echo ("Install-SharedLibsMultiCfg cfg="+$cfg)
+        echo ("Install-SharedLibsMultiCfg cfg="+$cfg)
         Install-SharedLibs -Solutions $Solutions -BuildConfiguration $cfg -BuildPlatforms $BuildPlatforms -BuildMode $BuildMode -ToolsVersion $ToolsVersion -LibNames $LibNames -LibDir $LibsDirs[$cfg]  -ArchTable $ArchTable
     }
 }
