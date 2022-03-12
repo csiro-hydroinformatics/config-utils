@@ -49,6 +49,7 @@ function Install-SharedLibs
         [string]$LibDir = ".",
         [string]$ToolsVersion = "14.0"
     )
+    echo ("Build-Solutions cfg="+$BuildConfiguration)
     Build-Solutions -Solutions $Solutions -BuildConfiguration $BuildConfiguration -BuildPlatforms $BuildPlatforms -BuildMode $BuildMode -ToolsVersion $ToolsVersion
     Build-Library  -Solutions $Solutions -BuildConfiguration $BuildConfiguration -BuildPlatforms $BuildPlatforms -LibNames $LibNames -LibDir $LibDir -ArchTable $ArchTable
 }
