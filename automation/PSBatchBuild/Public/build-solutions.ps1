@@ -72,10 +72,17 @@ function Build-Solutions {
 
                 # Write-Error -Message $buildResult.Message
 
-                Get-Content -Path $buildResult.BuildErrorsLogFilePath
+                if ($null -ne $buildResult.BuildErrorsLogFilePath) {
+                    Get-Content -Path $buildResult.BuildErrorsLogFilePath
+                } else {
+                    echo "no buildResult.BuildErrorsLogFilePath"
+                }
 
-                Get-Content -Path $buildResult.BuildLogFilePath
-
+                if ($null -ne $buildResult.BuildLogFilePath) {
+                    Get-Content -Path $buildResult.BuildLogFilePath
+                } else {
+                    echo "no buildResult.BuildLogFilePath"
+                }
                 exit $exitCode
                 # TODO: used to be the case, but probably not the best option for most use cases
                 # break iterSln 
