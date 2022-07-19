@@ -84,7 +84,7 @@ function Build-Solutions {
                     echo "no buildResult.BuildLogFilePath"
                 }
 
-                Get-Content -Path "C:\Users\VssAdministrator\AppData\Local\Temp\yaml-cpp.sln.msbuild.log"
+                # Get-Content -Path "C:\Users\VssAdministrator\AppData\Local\Temp\yaml-cpp.sln.msbuild.log"
 
                 exit $exitCode
                 # TODO: used to be the case, but probably not the best option for most use cases
