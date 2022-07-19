@@ -65,7 +65,15 @@ function Build-Solutions {
             $blah = "Invoke-MSBuild -Path $solution -MsBuildParameters '$msb_params' -LogVerbosity q"
             echo ($blah)
             $buildResults = Invoke-MSBuild -Path $solution -MsBuildParameters "$msb_params" -LogVerbosity q 
-            if ($buildResults.BuildSucceeded -eq $false) {break iterSln} 
+            if ($buildResults.BuildSucceeded -eq $false) 
+            {
+                exitCode = $?
+                $msg = $Error[0].Exception.Message
+                Write-Error -Message $msg
+                exit $code
+                # TODO: used to be the case, but probably not the best option for most use cases
+                # break iterSln 
+            }
         }
     }
 }
