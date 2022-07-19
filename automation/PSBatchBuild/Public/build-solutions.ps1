@@ -67,10 +67,10 @@ function Build-Solutions {
             $buildResults = Invoke-MSBuild -Path $solution -MsBuildParameters "$msb_params" -LogVerbosity q 
             if ($buildResults.BuildSucceeded -eq $false) 
             {
-                exitCode = $?
+                $exitCode = $?
                 $msg = $Error[0].Exception.Message
                 Write-Error -Message $msg
-                exit $code
+                exit $exitCode
                 # TODO: used to be the case, but probably not the best option for most use cases
                 # break iterSln 
             }
