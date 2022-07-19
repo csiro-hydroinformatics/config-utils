@@ -69,7 +69,7 @@ function Build-Solutions {
             if ($buildResults.BuildSucceeded -eq $false) 
             {
                 $exitCode = $?
-                $msg = $Error[0].Exception.Message
+
                 Write-Error -Message $buildResult.Message
 
                 Get-Content -Path $buildResult.BuildErrorsLogFilePath
