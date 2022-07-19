@@ -87,7 +87,13 @@ function Build-Solutions {
                 # HACK necessary to debug an azure pipeline
                 $solution_fn = Split-Path $solution -leaf
                 $log_file = "C:\Users\VssAdministrator\AppData\Local\Temp\SOLUTION_FN.msbuild.log" -replace 'SOLUTION_FN', $solution_fn
-                Get-Content -Path $log_file
+
+                if (Test-Path $log_file -PathType Leaf)
+                {
+                    Get-Content -Path $log_file
+                } else {
+                    echo ("HACK: log file not found " + $log_file)
+                }
 
                 exit $exitCode
                 # TODO: used to be the case, but probably not the best option for most use cases
