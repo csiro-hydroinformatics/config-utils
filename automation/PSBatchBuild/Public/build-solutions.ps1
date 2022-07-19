@@ -70,10 +70,23 @@ function Build-Solutions {
             {
                 $exitCode = $?
                 $msg = $Error[0].Exception.Message
-                Write-Error -Message $msg
+                Write-Error -Message $buildResult.Message
+
+                Get-Content -Path $buildResult.BuildErrorsLogFilePath
+
+                Get-Content -Path $buildResult.BuildLogFilePath
+
                 exit $exitCode
                 # TODO: used to be the case, but probably not the best option for most use cases
                 # break iterSln 
+            }
+            elseif ($buildResult.BuildSucceeded -eq $true)
+            {
+                Write-Output ("Build completed successfully in {0:N1} seconds." -f $buildResult.BuildDuration.TotalSeconds)
+            }
+            elseif ($null -eq $buildResult.BuildSucceeded)
+            {
+                Write-Output "Unsure if build passed or failed: $($buildResult.Message)"
             }
         }
     }
