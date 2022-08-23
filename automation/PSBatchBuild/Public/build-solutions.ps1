@@ -61,7 +61,8 @@ function Build-Solutions {
             # $msb_params = "/target:$BuildMode /property:Configuration=$BuildConfiguration;Platform=$BuildPlatform /toolsversion:$ToolsVersion /consoleloggerparameters:ErrorsOnly"
             # NOTE: if using /toolsversion, the build fails, because error MSB4019: The imported project "C:\Microsoft.Cpp.Default.props" was not found
             # Specifying these tools version thing may be deprecated after moving to https://github.com/deadlydog/Invoke-MsBuild
-            $msb_params = "/target:$BuildMode /property:Configuration=$BuildConfiguration;Platform=$BuildPlatform /consoleloggerparameters:ErrorsOnly"
+            # /p:CL_MPCount=2  comes from  https://stackoverflow.com/a/46723127
+            $msb_params = "/p:CL_MPCount=8 /target:$BuildMode /property:Configuration=$BuildConfiguration;Platform=$BuildPlatform /consoleloggerparameters:ErrorsOnly"
             $blah = "Invoke-MSBuild -Path $solution -MsBuildParameters '$msb_params' -LogVerbosity q"
             echo ($blah)
             $buildResults = Invoke-MSBuild -Path $solution -MsBuildParameters "$msb_params" -LogVerbosity q 

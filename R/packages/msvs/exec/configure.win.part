@@ -29,7 +29,7 @@ RSCRIPT="${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe"
 # INCL_PATH_UNIX=`cmd /c .\\\\src\\\\get_includepath.cmd`
 INCL_PATH_UNIX=`${RSCRIPT} -e "library(msvs) ; msvs::get_include_path()"`
 LIB_PATH_UNIX=`${RSCRIPT} -e "library(msvs) ; msvs::get_library_path()"`
-DEV_LIB_PATH_UNIX=`${RSCRIPT} -e "library(msvs) ; msvs::get_path_from_env(envvarname='DEV_LIBRARY_PATH')"`
+DEV_LIB_PATH_UNIX=`${RSCRIPT} -e "library(msvs) ; if (Sys.getenv('DEV_LIBRARY_PATH') == '') '' else msvs::get_path_from_env(envvarname='DEV_LIBRARY_PATH')"`
 
 if [ "$LIB_PATH_UNIX" = "" ]
 then
