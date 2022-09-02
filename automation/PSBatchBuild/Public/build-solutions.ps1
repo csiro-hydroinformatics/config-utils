@@ -91,18 +91,20 @@ function Build-Solutions {
                     echo "no buildResult.BuildLogFilePath"
                 }
 
-                # HACK necessary to debug an azure pipeline
                 $solution_fn = Split-Path $solution -leaf
-                $log_file = "C:\Users\VssAdministrator\AppData\Local\Temp\SOLUTION_FN.msbuild.log" -replace 'SOLUTION_FN', $solution_fn
+                # HACK necessary to debug an azure pipeline
+                if (Test-Path env:BUILD_ARTIFACTSTAGINGDIRECTORY) {
+                    $log_file = "C:\Users\VssAdministrator\AppData\Local\Temp\SOLUTION_FN.msbuild.log" -replace 'SOLUTION_FN', $solution_fn
 
-                if (Test-Path $log_file -PathType Leaf)
-                {
-                    Get-Content -Path $log_file
-                } else {
-                    echo ("HACK: log file not found " + $log_file)
+                    if (Test-Path $log_file -PathType Leaf)
+                    {
+                        Get-Content -Path $log_file
+                    } else {
+                        echo ("HACK: log file not found " + $log_file)
+                    }
+                    exit $exitCode
                 }
 
-                exit $exitCode
                 # TODO: used to be the case, but probably not the best option for most use cases
                 # break iterSln 
             }
