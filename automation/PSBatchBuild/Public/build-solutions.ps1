@@ -95,9 +95,8 @@ function Build-Solutions {
                     echo ("HACK: log file not found " + $log_file)
                 }
 
-                exit $exitCode
-                # TODO: used to be the case, but probably not the best option for most use cases
-                # break iterSln 
+                Write-Output ("ERROR: Solution build failed with exit code  " + $exitCode)
+                break iterSln 
             }
             elseif ($buildResult.BuildSucceeded -eq $true)
             {
