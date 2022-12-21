@@ -13,11 +13,16 @@ build:
 
 install:
 	mkdir -p $(INSTALL_PREFIX)/include/catch
-	cp ./catch/include/catch/catch_macros.hpp $(INSTALL_PREFIX)/include/catch/
+	cp ./catch/include/catch/catch*.hpp $(INSTALL_PREFIX)/include/catch/
 	mkdir -p $(INSTALL_PREFIX)/share/cmake/Modules
-	cp -R ./cmake/Modules/*.cmake $(INSTALL_PREFIX)/share/cmake/Modules/
+	cp -r ./cmake/Modules/*.cmake $(INSTALL_PREFIX)/share/cmake/Modules/
 
-# uninstall:
-# 	rm $(INSTALL_PREFIX)/include/catch/catch_macros.hpp
-# 	`cd ./cmake/Modules ; ls *.cmake`
+uninstall:
+	rm $(INSTALL_PREFIX)/include/catch/catch*.hpp
+	cd ./cmake/Modules;
+	ff=`ls *.cmake`
+	cd $(INSTALL_PREFIX)/share/cmake/Modules
+	if [ $? != 0 ]; then exit $?; fi
+	rm ${ff}
+
 
