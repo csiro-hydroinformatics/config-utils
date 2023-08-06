@@ -116,6 +116,11 @@ fi
 currentver=`cat ${current_version_dir}/version.txt`
 newver=`cat ${setup_version_dir}/version.txt`
 
+# remove carriage return and spaces; 
+# work around for https://github.com/csiro-hydroinformatics/config-utils/issues/2
+currentver=`echo ${currentver} | tr -d '\r' | tr -d ' '`
+newver=`echo ${newver} | tr -d '\r' | tr -d ' '`
+
 vercomp $currentver $newver
 case $? in
     0) op='=';;
@@ -123,21 +128,33 @@ case $? in
     2) op='<';;
 esac
 
-if [[ $op != '<' ]]
+if [[ $op = '=' ]]
 then
-    echo "Version number already the latest: $currentver"
+    echo "Version number on disk ${currentver} is already the remote version ${newver}"
+    echo "Stopping the download and exiting"
     #exit 0;
 else
-    echo "Newer version available: $newver"
-    if [ ! -z "$(ls -A ${version_dir})" ]; then
-        # not empty; clean up
-        rm ${version_dir}/*.*;
+    if [[ $op = '>' ]]
+    then
+        echo "Version number on disk ${currentver} is newer than the remote version ${newver}!."
+        echo "Stopping the download and exiting"
+        #exit 0;
+    else
+        echo "Version number on disk ${currentver} is older than the remote version ${newver}!."
+        echo "Downloading..."
+        if [ ! -z "$(ls -A ${version_dir})" ]; then
+            # not empty; clean up
+            rm ${version_dir}/*.*;
+        fi
+        _download_setup
+        if [ ! $? == 0 ]; then
+            echo "Download of version ${newver} failed!"
+            exit 1;
+        else
+            echo "Download of version ${newver} complete."
+            # and we end up by setting the current version.
+            echo $newver > ${current_version_dir}/version.txt
+            exit 0;
+        fi
     fi
-    _download_setup
-    if [ ! $? == 0 ]; then
-        exit 1;
-    fi
-    # and we end up by setting the current version.
-    echo $newver > ${current_version_dir}/version.txt
-    exit 0;
 fi
