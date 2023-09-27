@@ -59,6 +59,17 @@ find_library (NETCDF_LIBRARY NAMES netcdf
   HINTS "${NETCDF_DIR}/lib")
 mark_as_advanced (NETCDF_LIBRARY)
 
+# workaround for EASI-Hub
+set (NETCDF_LIBRARY /usr/lib/x86_64-linux-gnu/libnetcdf.so)
+
+if (NOT NETCDF_LIBRARY)
+  if(DEFINED ENV{INSTALL_PREFIX})
+    find_library (NETCDF_LIBRARY NAMES netcdf
+      HINTS "$ENV{INSTALL_PREFIX}/lib")
+    mark_as_advanced (NETCDF_LIBRARY)
+  endif ()
+endif ()
+
 
 ## on clusters
 ## after ""module load netcdf"" I observe, well, depends on the cluster:

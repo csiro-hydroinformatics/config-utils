@@ -1,5 +1,5 @@
 Source: libconfig-utils-dev
-Maintainer: Jean-Michel Perraud <per202@csiro.au>
+Maintainer: Jean-Michel Perraud <jean-michel.perraud@csiro.au>
 Section: libdevel
 # Testsuite: autopkgtest-pkg-r
 Priority: optional
