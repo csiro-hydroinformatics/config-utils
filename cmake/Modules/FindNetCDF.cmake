@@ -59,6 +59,8 @@ find_library (NETCDF_LIBRARY NAMES netcdf
   HINTS "${NETCDF_DIR}/lib")
 mark_as_advanced (NETCDF_LIBRARY)
 
+# Tried to add this to cater for EASI., 
+# BUT this may break the compilation on Petrichor. Beware.
 if (NOT NETCDF_LIBRARY)
   if(DEFINED ENV{INSTALL_PREFIX})
     find_library (NETCDF_LIBRARY NAMES netcdf
