@@ -6,7 +6,6 @@ _exit_if_failed () {
         exit ${_rc};
     fi
 }
-
 _build_cmake () {
     src_dir=$1
     _eif=${2-0}
@@ -21,20 +20,26 @@ _build_cmake () {
         echo "FAILED: directory not found: ${src_dir}";
         ret_code=127;
     else
-        cd ${src_dir} && \
-        mkdir -p ${src_dir}/build
-        # Uninstall if makefile is already here.
-        if [ -e ${src_dir}/build/install_manifest.txt ]; then
-            cd ${src_dir}/build \
-            && ${_sudo_cmd} make uninstall \
-            || ret_code=1;
-        fi
-        if [ $ret_code != 0 ]; then
-            echo "FAILED uninstalling prior native lib: $src_dir";
-            if [ $_eif != 0 ]; then
-                _exit_if_failed $ret_code "compilation of ${src_dir}"
+        cd ${src_dir}
+        if [ -z "${DONT_UNINSTALL}" ]; then
+            echo "DONT_UNINSTALL is not set or is empty - trying to uninstall"
+            # Uninstall if makefile is already here.
+            if [ -e ${src_dir}/build/install_manifest.txt ]; then
+                echo "Found an install manifest at  ${src_dir}/build/install_manifest.txt"
+                cd ${src_dir}/build \
+                && ${_sudo_cmd} make uninstall \
+                || ret_code=1;
             fi
+            if [ $ret_code != 0 ]; then
+                echo "FAILED uninstalling prior native lib: $src_dir";
+                if [ $_eif != 0 ]; then
+                    _exit_if_failed $ret_code "compilation of ${src_dir}"
+                fi
+            fi
+        else
+            echo "DONT_UNINSTALL is set - not trying to uninstall"
         fi
+        mkdir -p ${src_dir}/build
         cd ${src_dir}/build \
         && ${CLEAN_BUILD} \
         && ${CM} \
