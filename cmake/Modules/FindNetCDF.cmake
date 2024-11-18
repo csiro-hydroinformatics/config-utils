@@ -59,7 +59,6 @@ find_library (NETCDF_LIBRARY NAMES netcdf
   HINTS "${NETCDF_DIR}/lib")
 mark_as_advanced (NETCDF_LIBRARY)
 
-
 ## on clusters
 ## after ""module load netcdf"" I observe, well, depends on the cluster:
 ## NETCDF_HOME=/apps/netcdf/4.4.1.1
@@ -98,6 +97,19 @@ if (NOT NETCDF_INCLUDE_DIR)
 	find_library (NETCDF_LIBRARY NAMES netcdf PATHS "/opt/ehp/suite/lib" )
 endif ()
 ## per202 END include the BoM EHP specific finders
+
+# Tried to add this to cater for EASI., 
+# BUT this may break the compilation on Petrichor depending on where this is called!!. Beware.
+if (NOT NETCDF_LIBRARY)
+  if(DEFINED ENV{INSTALL_PREFIX})
+    find_library (NETCDF_LIBRARY NAMES netcdf
+      HINTS "$ENV{INSTALL_PREFIX}/lib")
+    mark_as_advanced (NETCDF_LIBRARY)
+  else ()
+    # workaround for EASI-Hub
+    set (NETCDF_LIBRARY /usr/lib/x86_64-linux-gnu/libnetcdf.so)
+  endif ()
+endif ()
 
 
 ## per202 The rest looks for C++ and fortran interfaces - inherited from original, likely not used for SWIFT

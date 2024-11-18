@@ -1,0 +1,208 @@
+_exit_if_failed () {
+    _rc=$1
+    _title=$2
+    if [ ! $_rc == 0 ]; then
+        echo "FAILED ${_title} - EXITING PROCESS";
+        exit ${_rc};
+    fi
+}
+_build_cmake () {
+    src_dir=$1
+    _eif=${2-0}
+    use_sudo=${3-0}
+    ret_code=0
+    _sudo_cmd=""
+    if [ ${use_sudo} != 0 ]; then
+        _sudo_cmd="sudo"
+    fi
+
+    if [ ! -e ${src_dir} ]; then
+        echo "FAILED: directory not found: ${src_dir}";
+        ret_code=127;
+    else
+        cd ${src_dir}
+        if [ -z "${DONT_UNINSTALL}" ]; then
+            echo "DONT_UNINSTALL is not set or is empty - trying to uninstall"
+            # Uninstall if makefile is already here.
+            if [ -e ${src_dir}/build/install_manifest.txt ]; then
+                echo "Found an install manifest at  ${src_dir}/build/install_manifest.txt"
+                cd ${src_dir}/build \
+                && ${_sudo_cmd} make uninstall \
+                || ret_code=1;
+            fi
+            if [ $ret_code != 0 ]; then
+                echo "FAILED uninstalling prior native lib: $src_dir";
+                if [ $_eif != 0 ]; then
+                    _exit_if_failed $ret_code "compilation of ${src_dir}"
+                fi
+            fi
+        else
+            echo "DONT_UNINSTALL is set - not trying to uninstall"
+        fi
+        mkdir -p ${src_dir}/build
+        cd ${src_dir}/build \
+        && ${CLEAN_BUILD} \
+        && ${CM} \
+        && ${MAKE_CMD} \
+        || ret_code=1;
+
+        if [ $ret_code == 0 ]; then
+            echo "OK: built $src_dir";
+        else
+            echo "FAILED building: $src_dir";
+        fi
+    fi
+    if [ $_eif != 0 ]; then
+        _exit_if_failed $ret_code "compilation of ${src_dir}"
+    fi
+    return $ret_code
+}
+
+_install_cmake () {
+    src_dir=$1
+    use_sudo=${2-0}
+    _eif=${3-0}
+    ret_code=0
+    _sudo_cmd=""
+    if [ ${use_sudo} != 0 ]; then
+        _sudo_cmd="sudo"
+    fi
+    if [ ! -e ${src_dir}/build ]; then
+        echo "FAILED: directory not found: ${src_dir}/build";
+        ret_code=127;
+    else
+        cd ${src_dir}/build \
+        && ${_sudo_cmd} make install \
+        || ret_code=1;
+
+        if [ $ret_code == 0 ]; then
+            echo "OK: built $src_dir";
+        else
+            echo "FAILED building: $src_dir";
+        fi
+    fi
+    if [ $_eif != 0 ]; then
+        _exit_if_failed $ret_code "compilation of ${src_dir}"
+    fi
+    return $ret_code
+}
+
+_do_ldconfig() {
+    _install_prefix=${1-/usr/local}
+    sudo chmod +x ${_install_prefix}/lib/*.so
+    sudo ldconfig
+}
+
+_run_cli_unit_test () {
+    build_dir=$1
+    exe_name=$2
+    _eif=${3-0} # exit if failed
+    _rc=0
+    if [ ! -e ${build_dir} ]; then
+        echo "FAILED: directory not found: ${build_dir}";
+        _rc=127;
+    else
+        cd ${build_dir};
+        if [ ! -e ${exe_name} ]; then
+            echo "FAILED: file ${exe_name} not found in ${build_dir}";
+            _rc=127;
+        else
+            ./${exe_name}
+            ret_code=$?
+            if [ $ret_code != 0 ]; then 
+                echo FAILED: unit test ${exe_name} return code is not 0 but $ret_code
+                _rc=$ret_code;
+            fi
+        fi
+    fi
+    if [ $_eif != 0 ]; then
+        _exit_if_failed $_rc "unit tests ${exe_name}"
+    fi
+    return $_rc
+}
+
+_print_banner() {
+    echo
+    echo "==============================================="
+    echo $1
+    echo "==============================================="
+    echo
+}
+
+_build_tarball () {
+    DEB_BUILD_ROOT=$1
+    src_pkgname=$2
+    vernum=$3
+    SRC=$4
+    FILES=$5
+    _eif=${6-0} # exit if failed
+    if [ ! -e ${SRC} ]; then
+        if [ $_eif != 0 ]; then
+            _exit_if_failed 127 "FAILED: directory not found: $SRC"
+        fi
+        echo "FAILED: directory not found: $SRC";
+        return 127;
+    fi
+    src_pkgname_ver=${src_pkgname}-${vernum}
+    src_pkgname_orig_directory=${src_pkgname_ver}
+    fn_ver=${src_pkgname}_${vernum}
+    DEB_BUILD_PKG=${DEB_BUILD_ROOT}/${src_pkgname}/
+    DEB_BUILD=${DEB_BUILD_PKG}/${src_pkgname}/${src_pkgname_orig_directory}
+    if [ $DEBUG_DEB == 0 ]; then
+        if [ -e ${DEB_BUILD} ]; then
+            echo "OK?: Found existing directory $DEB_BUILD ; Assuming this is already built";
+            return 0;
+        fi
+    fi
+    mkdir -p ${DEB_BUILD_PKG}
+    rm -rf ${DEB_BUILD_PKG}/*
+    mkdir -p ${DEB_BUILD}
+    cd ${SRC}
+    cp -Rf ${FILES} ${DEB_BUILD}/
+    cd ${DEB_BUILD}
+    # ls -a
+    cd ${DEB_BUILD}/..
+    tar -zcvf ${fn_ver}.orig.tar.gz ${src_pkgname_orig_directory}
+    cd ${DEB_BUILD}
+    debuild -us -uc 
+    if [ $? == 0 ]; then
+        echo "OK: built $src_pkgname";
+        return 0;
+    else
+        echo "FAILED to build deb package $src_pkgname";
+        cd ${SRC}
+        if [ $DEBUG_DEB == 0 ]; then
+            rm -rf ${DEB_BUILD_PKG}/*
+        else
+            echo "DEBUG active: leaving directory $DEB_BUILD_PKG";
+        fi
+        if [ $_eif != 0 ]; then
+            _exit_if_failed 1 "FAILED to build deb package $src_pkgname"
+        fi
+    fi
+}
+
+_checked_build_tarball () {
+    _build_tarball $1 $2 $3 "$4";
+    ret_code=$?
+    if [ ! $? == 0 ]; then
+        exit 1;
+    else
+        echo "OK: copying to ${DEB_PKGS_DIR}";
+        cp ${DEB_BUILD}/../*.deb ${DEB_PKGS_DIR}/ ;
+    fi
+}
+
+
+_install_deb() {
+    libname=$1
+    deb_version=$2
+    # dpkg -c ${DEB_PKGS_DIR}/lib${src_pkgname}-dev_${deb_version}_amd64.deb
+    ${SUDOCMD} dpkg -i ${DEB_PKGS_DIR}/${libname}_${deb_version}_amd64.deb
+    if [ ! $? == 0 ]; then
+        echo "FAILED: installing ${libname}";
+        exit 1;
+    fi
+}
+
+

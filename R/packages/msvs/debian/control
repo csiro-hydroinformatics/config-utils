@@ -1,5 +1,5 @@
 Source: r-msvs
-Maintainer: Jean-Michel Perraud <per202@csiro.au>
+Maintainer: Jean-Michel Perraud <jean-michel.perraud@csiro.au>
 Section: gnu-r
 # Testsuite: autopkgtest-pkg-r
 Priority: optional

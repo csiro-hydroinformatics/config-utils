@@ -6,7 +6,7 @@ Date: 2020-01-26
 Authors@R: c( person("Jean-Michel", "Perraud", email =
     "jean-michel.perraud@csiro.au", role = c("aut", "cre")))
 Author: Jean-Michel Perraud [aut, cre]
-Maintainer: Jean-Michel Perraud <per202@csiro.au>
+Maintainer: Jean-Michel Perraud <jean-michel.perraud@csiro.au>
 Description: msvs is a package with facilities to use microsoft visual studio related compilers for R packages.
 URL: https://github.com/jmp75/config-utils/tree/master/R/packages
 License: BSD-3
