@@ -13,7 +13,17 @@ if exist "%progf%" (
     goto foundVsDevCmdFile
 ) else (
     echo "WARNING: failed to locate VS2019 at %progf%"
-    echo "WARNING: will try fallback options"
+    echo "WARNING: will try successive fallback options"
+)
+
+@REM # fallback 
+set progf=%ProgramFiles(x86)%\Microsoft Visual Studio\2019\
+if exist "%progf%" (
+    goto foundVsDevCmdFile
+) else (
+    echo "WARNING: fallback to use VS2019 failed, no path found at %progf%"
+    echo "WARNING: will try 'VS2017' fallback option"
+    goto fallbackVSCOMNTOOLS
 )
 
 @REM # fallback 
